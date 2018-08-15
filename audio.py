@@ -28,7 +28,7 @@ class audier(object):
 		fileObject.close()
 		return wav_files
 
-
+	# 生成mfcc特征文件，可以通过文件路径名使用特征
 	def mfcc(self, wavlist='wav.scp', savepath='mfcc.dict', n_input=26):
 		fileObject = open(wavlist, 'r')
 		mfcc_dict = {}
@@ -45,7 +45,7 @@ class audier(object):
 		featureObject.close()
 		return mfcc_dict
 
-
+	#生成cmvn,可以通过文件名使用特征
 	def cmvn(self, wavlist='wav.scp', savepath='cmvn.dict', n_input=26):
 		fileObject = open(wavlist, 'r')
 		cmvn_dict = {}
@@ -55,7 +55,7 @@ class audier(object):
 			fs, audio = wav.read(audio_filename)
 			orig_inputs = mfcc(audio, samplerate=fs, numcep=n_input)
 			train_inputs = orig_inputs[::2]
-			train_inputs = (train_inputs - np.mean(train_inputs)) / np.std(train_inputs)
+			train_inputs = (train_inputs - np.mean(train_inputs,0)) / np.std(train_inputs,0)
 			cmvn_dict[audio_filename] = train_inputs
 		featureObject = open(savepath, 'wb+')
 		#featureObject.write(pickle.dump(mfcc_dict))
