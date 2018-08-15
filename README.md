@@ -1,1 +1,4 @@
-# ch_speech_recognition
+# 中文语音识别
+- 基于keras的中文语音识别
+- 特征提取
+- 声学模型
