@@ -1,7 +1,9 @@
 import os
 import pickle
 import scipy.io.wavfile as wav
+import numpy as np
 from python_speech_features import mfcc
+
 
 
 class audier(object):
@@ -9,7 +11,8 @@ class audier(object):
 	def __init__(self, wavepath):
 		super(audier, self).__init__()
 		self.wavepath = wavepath
-	
+
+
 	def getwavfile(self, savepath='wav.scp'):
 		'''获取音频文件列表'''
 		wav_files = []
@@ -34,8 +37,8 @@ class audier(object):
 			audio_filename = audio_filename.strip('\n')
 			fs, audio = wav.read(audio_filename)
 			orig_inputs = mfcc(audio, samplerate=fs, numcep=n_input)
-			orig_inputs = orig_inputs[::2]
-			mfcc_dict[audio_filename] = orig_inputs
+			train_inputs = orig_inputs[::2]
+			mfcc_dict[audio_filename] = train_inputs
 		featureObject = open(savepath, 'wb+')
 		#featureObject.write(pickle.dump(mfcc_dict))
 		pickle.dump(mfcc_dict,featureObject)
@@ -43,14 +46,26 @@ class audier(object):
 		return mfcc_dict
 
 
-	def cmvn(self, input='mfcc.dict', savepath='cmvn.dict')
-		testobj = open(savepath, 'rb+')
-		testdata = pickle.load(testobj)
-		testshape = testdata['E:\\Data\\primewords_md_2018_set1\\primewords_md_2018_set1\\audio_files\\0\\0a\\0aff988c-30c8-4f43-8ddc-2f87a39c8a93.wav']
-		print(testshape.shape)
+	def cmvn(self, wavlist='wav.scp', savepath='cmvn.dict', n_input=26):
+		fileObject = open(wavlist, 'r')
+		cmvn_dict = {}
+		i=1
+		for audio_filename in fileObject.readlines():
+			audio_filename = audio_filename.strip('\n')
+			fs, audio = wav.read(audio_filename)
+			orig_inputs = mfcc(audio, samplerate=fs, numcep=n_input)
+			train_inputs = orig_inputs[::2]
+			train_inputs = (train_inputs - np.mean(train_inputs)) / np.std(train_inputs)
+			cmvn_dict[audio_filename] = train_inputs
+		featureObject = open(savepath, 'wb+')
+		#featureObject.write(pickle.dump(mfcc_dict))
+		pickle.dump(cmvn_dict,featureObject)
+		featureObject.close()
+		return cmvn_dict
 
 
 if __name__ == '__main__':
 	p = audier('E:\\Data\\primewords_md_2018_set1\\primewords_md_2018_set1\\audio_files\\0\\0a')
 	p.getwavfile()
 	p.mfcc()
+	p.cmvn()
