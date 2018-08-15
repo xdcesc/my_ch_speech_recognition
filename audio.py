@@ -23,6 +23,7 @@ class audier(object):
 			fileObject.write(ip)
 			fileObject.write('\n')
 		fileObject.close()
+		return wav_files
 
 
 	def mfcc(self, wavlist='wav.scp', savepath='mfcc.dict', n_input=26):
@@ -35,16 +36,21 @@ class audier(object):
 			orig_inputs = mfcc(audio, samplerate=fs, numcep=n_input)
 			orig_inputs = orig_inputs[::2]
 			mfcc_dict[audio_filename] = orig_inputs
-			if i%50==0:
-				print('this is file:', i)
-			i = i + 1
-		featureObject = open(savepath, 'w')
+		featureObject = open(savepath, 'wb+')
 		#featureObject.write(pickle.dump(mfcc_dict))
 		pickle.dump(mfcc_dict,featureObject)
 		featureObject.close()
+		return mfcc_dict
+
+
+	def cmvn(self, input='mfcc.dict', savepath='cmvn.dict')
+		testobj = open(savepath, 'rb+')
+		testdata = pickle.load(testobj)
+		testshape = testdata['E:\\Data\\primewords_md_2018_set1\\primewords_md_2018_set1\\audio_files\\0\\0a\\0aff988c-30c8-4f43-8ddc-2f87a39c8a93.wav']
+		print(testshape.shape)
 
 
 if __name__ == '__main__':
-	p = audier('E:\\Data\\data_thchs30\\data')
+	p = audier('E:\\Data\\primewords_md_2018_set1\\primewords_md_2018_set1\\audio_files\\0\\0a')
 	p.getwavfile()
 	p.mfcc()
