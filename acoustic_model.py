@@ -4,6 +4,8 @@ from keras.layers import Conv1D,LSTM,MaxPooling1D, Lambda, TimeDistributed, Acti
 from keras.layers.merge import add, concatenate
 from keras import backend as K
 from keras.optimizers import SGD, Adadelta
+from keras.layer.recurrent import GRU
+
 
 class speech_rnn():
 	"""docstring for speech_rnn"""
@@ -32,7 +34,7 @@ class speech_rnn():
 		model.summary()
 		ada_d = Adadelta(lr=0.01, rho=0.95, epsilon=1e-06)
 		model.compile(loss={'ctc': lambda y_true, output: output}, optimizers=ada_d)
-		test_func = K.function([input_data], [output])
+		#test_func = K.function([input_data], [output])
 		return model
 
 
@@ -41,6 +43,34 @@ class speech_rnn():
 		y_pred = y_pred[:, :, :]
 		return K.ctc_batch_cost(labels, y_pred, input_length, label_length)
 
+	def get_batch(feats, labels, train=False, max_pred_len=28, input_length=250):
+	    
+	    
+	    X = np.expand_dims(feats, axis=3)
+	    X = feats # for model2
+	#     labels = np.ones((y.shape[0], max_pred_len)) *  -1 # 3 # , dtype=np.uint8
+	    labels = labels
+	    
+	    input_length = np.ones([feats.shape[0], 1]) * ( input_length - 2 )
+	#     label_length = np.ones([y.shape[0], 1])
+	    label_length = np.sum(labels > 0, axis=1)
+	    label_length = np.expand_dims(label_length,1)
+
+	    inputs = {'the_input': X,
+	              'the_labels': labels,
+	              'input_length': input_length,
+	              'label_length': label_length,
+	              }
+	    outputs = {'ctc': np.zeros([x.shape[0]])}  # dummy data for dummy loss function
+	    return (inputs, outputs)
+
 
 	def train(self):
-		model.fit()
+
+
+
+
+
+		model.fit(inputs, outputs, epochs=50, batch_size=32)
+
+

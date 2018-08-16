@@ -3,7 +3,8 @@ import pickle
 import scipy.io.wavfile as wav
 import numpy as np
 from python_speech_features import mfcc
-
+import tensorflow as tf
+from keras.preprocessing.sequence import pad_sequences
 
 
 class audier(object):
@@ -21,6 +22,7 @@ class audier(object):
 				if filename.endswith('.wav') or filename.endswith('.WAV'):
 					filename_path = os.sep.join([dirpath, filename])
 					wav_files.append(filename_path)
+		wav_files.sort()
 		fileObject = open(savepath, 'w')
 		for ip in wav_files:
 			fileObject.write(ip)
@@ -38,6 +40,7 @@ class audier(object):
 			fs, audio = wav.read(audio_filename)
 			orig_inputs = mfcc(audio, samplerate=fs, numcep=n_input)
 			train_inputs = orig_inputs[::2]
+
 			mfcc_dict[audio_filename] = train_inputs
 		featureObject = open(savepath, 'wb+')
 		#featureObject.write(pickle.dump(mfcc_dict))
@@ -49,23 +52,27 @@ class audier(object):
 	def cmvn(self, wavlist='wav.scp', savepath='cmvn.dict', n_input=26):
 		fileObject = open(wavlist, 'r')
 		cmvn_dict = {}
-		i=1
+		cmvn_mat = []
 		for audio_filename in fileObject.readlines():
 			audio_filename = audio_filename.strip('\n')
 			fs, audio = wav.read(audio_filename)
 			orig_inputs = mfcc(audio, samplerate=fs, numcep=n_input)
-			train_inputs = orig_inputs[::2]
+			train_inputs = orig_inputs[::3]
 			train_inputs = (train_inputs - np.mean(train_inputs,0)) / np.std(train_inputs,0)
-			cmvn_dict[audio_filename] = train_inputs
-		featureObject = open(savepath, 'wb+')
+			train_inputs = np.transpose(train_inputs)  
+			train_inputs = pad_sequences(train_inputs, maxlen=500, dtype='float', padding='post', truncating='post').T
+			#cmvn_dict[audio_filename] = train_inputs
+			cmvn_mat.append(train_inputs)
+		#featureObject = open(savepath, 'wb+')
 		#featureObject.write(pickle.dump(mfcc_dict))
-		pickle.dump(cmvn_dict,featureObject)
-		featureObject.close()
-		return cmvn_dict
+		#pickle.dump(cmvn_dict,featureObject)
+		#featureObject.close()
+		return cmvn_mat
 
 
 if __name__ == '__main__':
-	p = audier('E:\\Data\\primewords_md_2018_set1\\primewords_md_2018_set1\\audio_files\\0\\0a')
+	p = audier('E:\\Data\\data_thchs30\\dev')
 	p.getwavfile()
-	p.mfcc()
-	p.cmvn()
+	cmvn_mat = p.cmvn()
+	cmvn_mat = np.array(cmvn_mat)
+	print(cmvn_mat.shape)

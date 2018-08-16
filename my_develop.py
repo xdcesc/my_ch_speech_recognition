@@ -7,7 +7,7 @@ import numpy as np
 from keras.layers import Reshape
 
 
-
+#测试python字典的生成方式
 def dict_test():
 	all_word = []
 	label = []
@@ -28,6 +28,7 @@ def dict_test():
 	print('\nthe words num map:\n',word_num_map)
 
 
+#读取音频文件并提取特征
 def readwav(audio_filename, n_input=26):
 	# 读取音频文件
 	fs, audio = wav.read(audio_filename)
@@ -38,10 +39,12 @@ def readwav(audio_filename, n_input=26):
 #		plt.pause(0.01)
 #		plt.close()
 
+#测试format功能
 def train(loop):
 	section = '\n{0:=^40}\n'
 	print(section.format('开始训练'))
 
+#测试minimum功能
 def minimum(a,b):
 	y = tf.minimum(a,b)
 	print(y)
@@ -63,6 +66,8 @@ def main():
 def dimshape():
 	y = [[[1,2],[1,2],[1,2]]]
 	y = np.array(y)
+	Y = np.expand_dims(y, axis=3)
+	print(Y)
 	y = tf.transpose(y,[1,0,2])
 	y = tf.reshape(y,[-1,2])
 	print(y)

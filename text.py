@@ -1,6 +1,7 @@
 import numpy as np
 import pickle
 from collections import Counter
+from keras.preprocessing.sequence import pad_sequences
 
 
 class label(object):
@@ -30,7 +31,7 @@ class label(object):
 		print('\nthe words num map:\n',word_num_map)
 
 
-	def gen_dict(self, savepath='text2num.dict'):
+	def gen_dict(self, savepath='label\\text2num.dict'):
 		textlabels = []
 		textobj = open(self.textpath, 'r+')
 		for textlabel in textobj.readlines():
@@ -52,7 +53,7 @@ class label(object):
 		return word2num
 
 
-	def gen_num_label(self, savepath='num_label.dict'):
+	def gen_num_label(self, savepath='label\\num_label.dict'):
 		word2num = self.gen_dict()
 		to_num = lambda word: word2num.get(word, 4)
 		textobj = open(self.textpath, 'r+')
@@ -64,15 +65,20 @@ class label(object):
 			textlabel_text = textlabel.split(' ',1)[1]
 			textlabel_text = textlabel_text.split(' ')
 			label_vector = list(map(to_num,textlabel_text))
+			#label_vector = pad_sequences(label_vector, maxlen=50, padding='post', truncating='pre')
 			labeldict[textlabel_id] = label_vector
-		labelobj = open(savepath, 'wb+')
-		pickle.dump(labeldict,labelobj)
-		labelobj.close()
-		print(labeldict)
-		return labeldict
+		#labelobj = open(savepath, 'wb+')
+		#pickle.dump(labeldict,labelobj)
+		#labelobj.close()
+		#print(labeldict)
+		label_mat = []
+		for i in labeldict:
+			label_mat.append(labeldict[i])
+		label_mat = np.array(label_mat)
+		return label_mat
 
 
 if __name__ == '__main__':
-	t = label('E:\\Data\\thchs30\\train.syllable.txt')
-	t.gen_dict()
-	t.gen_num_label()
+	t = label('E:\\Data\\thchs30\\cv.syllable.txt')
+	text_dict = t.gen_dict()
+	label_mat = t.gen_num_label()
