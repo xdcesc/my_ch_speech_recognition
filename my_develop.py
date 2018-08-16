@@ -4,6 +4,7 @@ from collections import Counter
 from python_speech_features import mfcc
 import tensorflow as tf
 import numpy as np
+from keras.layers import Reshape
 
 
 
@@ -59,5 +60,12 @@ def main():
 #	for i in range(1):
 #		print(i)
 
+def dimshape():
+	y = [[[1,2],[1,2],[1,2]]]
+	y = np.array(y)
+	y = tf.transpose(y,[1,0,2])
+	y = tf.reshape(y,[-1,2])
+	print(y)
+
 if __name__ == '__main__':
-	main()
+	dimshape()
