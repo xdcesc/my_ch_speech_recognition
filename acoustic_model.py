@@ -77,7 +77,7 @@ class speech_rnn():
 	def SaveModel(self, filename='model/speech_rnn.mdl'):
 		self.model.save_weights(filename)
 		f = open('model/model.txt', 'w')
-		f.write(filename + comment)
+		f.write(filename)
 		f.close()
 
 
@@ -91,5 +91,7 @@ class speech_rnn():
 		self.model.load_weights(filename)
 
 
-	def TestModel(self, inputs):
-		self.model.predict(self, inputs, batch_size=32, verbose=0)
+	def TestModel(self):
+		self.get_batch()
+		self.inputs = np.array(self.inputs)
+		self.model.predict(self, self.inputs, batch_size=32, verbose=0)
