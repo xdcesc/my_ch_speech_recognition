@@ -22,9 +22,9 @@ class speech_rnn():
 
 	def rnn_model(self):
 		input_data = Input(name='the_input', shape=(500, self.AUDIO_FEATURE_LENGTH,))
-		layer_h1 = Dense(256, activation="relu", use_bias=True, kernel_initializer='he_normal')(input_data)
-		layer_h2_1 = GRU(256, return_sequences=True, kernel_initializer='he_normal')(layer_h1) # GRU
-		layer_h2_2 = GRU(256, return_sequences=True, go_backwards=True, kernel_initializer='he_normal')(layer_h1) # GRU
+		layer_h1 = Dense(512, activation="relu", use_bias=True, kernel_initializer='he_normal')(input_data)
+		layer_h2_1 = GRU(512, return_sequences=True, kernel_initializer='he_normal')(layer_h1) # GRU
+		layer_h2_2 = GRU(512, return_sequences=True, go_backwards=True, kernel_initializer='he_normal')(layer_h1) # GRU
 		layer_h2 = add([layer_h2_1, layer_h2_2])
 		layer_h3 = Dense(1200, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h2)
 		output = Activation('softmax', name='Activation0')(layer_h3)
@@ -69,5 +69,3 @@ class speech_rnn():
 
 	def train(self, inputs, outputs):
 		self.model.fit(inputs, outputs, epochs=50, batch_size=32)
-
-
