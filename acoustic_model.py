@@ -23,11 +23,15 @@ class speech_rnn():
 	def rnn_model(self):
 		input_data = Input(name='the_input', shape=(500, self.AUDIO_FEATURE_LENGTH,))
 		layer_h1 = Dense(512, activation="relu", use_bias=True, kernel_initializer='he_normal')(input_data)
-		layer_h2_1 = GRU(512, return_sequences=True, kernel_initializer='he_normal')(layer_h1) # GRU
-		layer_h2_2 = GRU(512, return_sequences=True, go_backwards=True, kernel_initializer='he_normal')(layer_h1) # GRU
-		layer_h2 = add([layer_h2_1, layer_h2_2])
-		layer_h3 = Dense(1200, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h2)
-		output = Activation('softmax', name='Activation0')(layer_h3)
+		layer_h1 = Dropout(0.3)(layer_h1)
+		layer_h2 = Dense(512, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h1)
+		layer_h3_1 = GRU(512, return_sequences=True, kernel_initializer='he_normal', dropout=0.3)(layer_h2) # GRU
+		layer_h3_2 = GRU(512, return_sequences=True, go_backwards=True, kernel_initializer='he_normal', dropout=0.3)(layer_h2) # GRU
+		layer_h3 = add([layer_h3_1, layer_h3_2])
+		layer_h4 = Dense(512, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h3)
+		layer_h4 = Dropout(0.3)(layer_h4)
+		layer_h5 = Dense(1200, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h4)
+		output = Activation('softmax', name='Activation0')(layer_h5)
 		#ctc
 		labels = Input(name='the_labels', shape=[50], dtype='float32')
 		input_length = Input(name='input_length', shape=[1], dtype='int64')
@@ -68,4 +72,4 @@ class speech_rnn():
 
 
 	def train(self, inputs, outputs):
-		self.model.fit(inputs, outputs, epochs=50, batch_size=32)
+		self.model.fit(inputs, outputs, epochs=10, batch_size=16)
