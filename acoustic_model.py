@@ -6,6 +6,7 @@ from keras import backend as K
 from keras.optimizers import SGD, Adadelta
 from keras.layers.recurrent import GRU
 import numpy as np
+from keras.utils import multi_gpu_model
 
 
 class speech_rnn():
@@ -35,6 +36,7 @@ class speech_rnn():
 		model = Model(inputs=[input_data, labels, input_length, label_length], outputs=loss_out)
 		model.summary()
 		ada_d = Adadelta(lr=0.01, rho=0.95, epsilon=1e-06)
+		model=multi_gpu_model(model,gpus=1)
 		model.compile(loss={'ctc': lambda y_true, output: output}, optimizer=ada_d)
 		#test_func = K.function([input_data], [output])
 		return model

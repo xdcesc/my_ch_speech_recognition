@@ -2,10 +2,13 @@ import audio
 import text
 import acoustic_model
 import numpy as np
+import os
 #import acoustic_model
 
 
 if __name__ == '__main__':
+	os.environ["CUDA_VISIBLE_DEVICES"] = "1" #　选择使用的GPU
+
 	p = audio.audier('E:\\Data\\data_thchs30\\dev')
 	p.getwavfile()
 	cmvn_mat = p.cmvn()
