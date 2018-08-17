@@ -7,7 +7,7 @@ import os
 
 
 if __name__ == '__main__':
-	os.environ["CUDA_VISIBLE_DEVICES"] = "1" #　选择使用的GPU
+	#os.environ["CUDA_VISIBLE_DEVICES"] = "1" #　选择使用的GPU
 
 	p = audio.audier('E:\\Data\\data_thchs30\\dev')
 	p.getwavfile()
