@@ -48,7 +48,7 @@ class audier(object):
 		featureObject.close()
 		return mfcc_dict
 
-	#生成cmvn,可以通过文件名使用特征
+	#生成cmvn,可以通过文件名使用特征，音频最大长度定位500
 	def cmvn(self, wavlist='wav.scp', savepath='cmvn.dict', n_input=26):
 		fileObject = open(wavlist, 'r')
 		cmvn_dict = {}

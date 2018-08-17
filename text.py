@@ -49,7 +49,7 @@ class label(object):
 		pickle.dump(word2num,dictobj)
 		dictobj.close()
 		to_num = lambda word: word2num.get(word, 4)
-		print(len(word2num))
+		#print(len(word2num))
 		return word2num
 
 
@@ -57,7 +57,6 @@ class label(object):
 		word2num = self.gen_dict()
 		to_num = lambda word: word2num.get(word, 4)
 		textobj = open(self.textpath, 'r+')
-		
 		labeldict = {}
 		for textlabel in textobj.readlines():
 			textlabel = textlabel.strip('\n')
@@ -65,6 +64,8 @@ class label(object):
 			textlabel_text = textlabel.split(' ',1)[1]
 			textlabel_text = textlabel_text.split(' ')
 			label_vector = list(map(to_num,textlabel_text))
+			add_vector = list(np.zeros(50-len(label_vector)))
+			label_vector = label_vector + add_vector
 			#label_vector = pad_sequences(label_vector, maxlen=50, padding='post', truncating='pre')
 			labeldict[textlabel_id] = label_vector
 		#labelobj = open(savepath, 'wb+')

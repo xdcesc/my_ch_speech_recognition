@@ -27,7 +27,6 @@ def dict_test():
 	print('\nthe words size: ',words_size)
 	print('\nthe words num map:\n',word_num_map)
 
-
 #读取音频文件并提取特征
 def readwav(audio_filename, n_input=26):
 	# 读取音频文件
@@ -49,20 +48,13 @@ def minimum(a,b):
 	y = tf.minimum(a,b)
 	print(y)
 
-
-
-def main():
-#	empty_mfcc = np.zero(5)
-#	empty = list(empty_mfcc for em)
-#	print(range(139))
-	
+def nparray():
 	x = [100,10]
 	y = x[:3]
 	y = np.asarray(y, dtype=np.float32)
 	print(y)
-#	for i in range(1):
-#		print(i)
 
+#查看矩阵形状变换
 def dimshape():
 	y = [[[1,2],[1,2],[1,2]]]
 	y = np.array(y)
@@ -72,5 +64,11 @@ def dimshape():
 	y = tf.reshape(y,[-1,2])
 	print(y)
 
+#生成list
+def generate_list():
+	i = 1
+	x = list(np.zeros(4-i))
+	print(len(x))
+
 if __name__ == '__main__':
-	dimshape()
+	generate_list()
