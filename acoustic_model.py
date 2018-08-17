@@ -11,16 +11,18 @@ import numpy as np
 
 class speech_rnn():
 	"""docstring for speech_rnn"""
-	def __init__(self):
+	def __init__(self, feats, labels):
 		super(speech_rnn, self).__init__()
-		#self.input_dict = input_dict
-		#self.label_dict = label_dict
+		self.feats = feats
+		self.labels = labels
 		self.AUDIO_LENGTH = 500
 		self.AUDIO_FEATURE_LENGTH = 26
 		self.OUTPUT_SIZE = 1200
-		self.model = self.rnn_model()
+		self.model = self.Rnn_model()
+		self.inputs,self.outputs = self.get_batch()
 
-	def rnn_model(self):
+
+	def Rnn_model(self):
 		input_data = Input(name='the_input', shape=(500, self.AUDIO_FEATURE_LENGTH,))
 		layer_h1 = Dense(512, activation="relu", use_bias=True, kernel_initializer='he_normal')(input_data)
 		layer_h1 = Dropout(0.3)(layer_h1)
@@ -51,25 +53,43 @@ class speech_rnn():
 		y_pred = y_pred[:, :, :]
 		return K.ctc_batch_cost(labels, y_pred, input_length, label_length)
 
-	def get_batch(self, feats, labels, train=False, max_pred_len=50, input_length=500):
-	    X = np.expand_dims(feats, axis=3)
-	    X = feats # for model2
-	#     labels = np.ones((y.shape[0], max_pred_len)) *  -1 # 3 # , dtype=np.uint8
-	    labels = labels
-	    
-	    input_length = np.ones([feats.shape[0], 1]) * ( input_length - 2 )
-	#     label_length = np.ones([y.shape[0], 1])
-	    label_length = np.sum(labels > 0, axis=1)
-	    label_length = np.expand_dims(label_length,1)
 
-	    inputs = {'the_input': X,
+	def get_batch(self, train=False, max_pred_len=50, input_length=500):
+		feats = self.feats
+		labels = self.labels
+		X = np.expand_dims(feats, axis=3)
+		X = feats # for model2
+	#     labels = np.ones((y.shape[0], max_pred_len)) *  -1 # 3 # , dtype=np.uint8
+		labels = labels	    
+		input_length = np.ones([feats.shape[0], 1]) * ( input_length - 2 )
+		#     label_length = np.ones([y.shape[0], 1])
+		label_length = np.sum(labels > 0, axis=1)
+		label_length = np.expand_dims(label_length,1)
+		inputs = {'the_input': X,
 	              'the_labels': labels,
 	              'input_length': input_length,
 	              'label_length': label_length,
 	              }
-	    outputs = {'ctc': np.zeros([feats.shape[0]])}  # dummy data for dummy loss function
-	    return (inputs, outputs)
+		outputs = {'ctc': np.zeros([feats.shape[0]])}  # dummy data for dummy loss function
+		return (inputs, outputs)
 
 
-	def train(self, inputs, outputs):
-		self.model.fit(inputs, outputs, epochs=10, batch_size=16)
+	def SaveModel(self, filename='model/speech_rnn.mdl'):
+		self.model.save_weights(filename)
+		f = open('model/model.txt', 'w')
+		f.write(filename + comment)
+		f.close()
+
+
+	def TrainModel(self):
+		self.get_batch()
+		self.model.fit(self.inputs, self.outputs, epochs=1, batch_size=16)
+		self.SaveModel()
+
+
+	def LoadModel(self, filename = 'model/speech_rnn.mdl'):
+		self.model.load_weights(filename)
+
+
+	def TestModel(self, inputs):
+		self.model.predict(self, inputs, batch_size=32, verbose=0)

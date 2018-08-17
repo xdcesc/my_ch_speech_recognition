@@ -20,7 +20,7 @@ if __name__ == '__main__':
 	label_mat = t.gen_num_label()
 	print(label_mat.shape)
 
-	am = acoustic_model.speech_rnn()
+	am = acoustic_model.speech_rnn(cmvn_mat, label_mat)
 	print('success import amodel')
-	inputs,outputs = am.get_batch(cmvn_mat, label_mat)
-	am.train(inputs,outputs)
+	am.TrainModel()
+	am.LoadModel()
