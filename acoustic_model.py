@@ -96,8 +96,13 @@ class speech_rnn():
 
 	def TestModel(self):
 		self.get_batch()
-		classes = self.model_data.predict(self.inputs['the_input'], batch_size=32)
-		return classes
+		base_pred = self.model_data.predict(self.inputs['the_input'][1:10], batch_size=32)
+		base_pred =base_pred[:, :, :]
+		shape = base_pred.shape
+		r = K.ctc_decode(base_pred, input_length=np.ones(shape[0])*shape[1], greedy = True, beam_width=100, top_paths=1)
+		r1 = K.get_value(r[0][0])
+		r1=r1
+		return r1
 
 
 	def Evaluate(self):
