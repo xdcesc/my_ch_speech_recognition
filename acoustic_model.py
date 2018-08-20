@@ -93,5 +93,9 @@ class speech_rnn():
 
 	def TestModel(self):
 		self.get_batch()
-		inputs = np.array(self.inputs)
-		self.model.predict(self, inputs, batch_size=32, verbose=0)
+		classes = self.model.predict(self.inputs, batch_size=32)
+		return classes
+
+
+	def Evaluate(self):
+		self.model.evaluate(self.inputs, self.outputs, batch_size=32, verbose=1, sample_weight=None)

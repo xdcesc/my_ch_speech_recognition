@@ -24,4 +24,4 @@ if __name__ == '__main__':
 	print('success import amodel')
 	am.LoadModel()
 	#TypeError: predict() got multiple values for argument 'batch_size'
-	am.TestModel()
+	classes = am.Evaluate()
