@@ -23,5 +23,5 @@ if __name__ == '__main__':
 	am = acoustic_model.speech_rnn(cmvn_mat, label_mat)
 	print('success import amodel')
 	am.LoadModel()
-	#TypeError: predict() got multiple values for argument 'batch_size'
 	classes = am.Evaluate()
+	print(classes)

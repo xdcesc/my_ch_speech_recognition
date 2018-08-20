@@ -98,4 +98,6 @@ class speech_rnn():
 
 
 	def Evaluate(self):
-		self.model.evaluate(self.inputs, self.outputs, batch_size=32, verbose=1, sample_weight=None)
+		classes = self.model.evaluate(self.inputs, self.outputs, batch_size=32, verbose=1, sample_weight=None)
+		return classes
+		
