@@ -5,6 +5,7 @@ from python_speech_features import mfcc
 import tensorflow as tf
 import numpy as np
 from keras.layers import Reshape
+import random
 
 
 #测试python字典的生成方式
@@ -70,5 +71,12 @@ def generate_list():
 	x = list(np.zeros(4-i))
 	print(len(x))
 
+
+def random_num(batch_size=32):
+	for i in range(batch_size):
+		ran_num = random.randint(0,32 - 1)
+		print(ran_num)
+
+
 if __name__ == '__main__':
-	generate_list()
+	random_num()

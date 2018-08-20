@@ -6,6 +6,8 @@ from keras import backend as K
 from keras.optimizers import SGD, Adadelta
 from keras.layers.recurrent import GRU
 import numpy as np
+import scipy.io.wavfile as wav
+from python_speech_features import mfcc
 #from keras.utils import multi_gpu_model
 
 
@@ -18,7 +20,7 @@ class speech_rnn():
 		self.AUDIO_LENGTH = 500
 		self.AUDIO_FEATURE_LENGTH = 26
 		self.OUTPUT_SIZE = 1200
-		self.model = self.Rnn_model()
+		self.model, self.model_data = self.Rnn_model()
 		self.inputs,self.outputs = self.get_batch()
 
 
@@ -34,6 +36,7 @@ class speech_rnn():
 		layer_h4 = Dropout(0.3)(layer_h4)
 		layer_h5 = Dense(1200, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h4)
 		output = Activation('softmax', name='Activation0')(layer_h5)
+		model_data = Model(inputs=input_data, outputs=output)
 		#ctc
 		labels = Input(name='the_labels', shape=[50], dtype='float32')
 		input_length = Input(name='input_length', shape=[1], dtype='int64')
@@ -45,7 +48,7 @@ class speech_rnn():
 		#model=multi_gpu_model(model,gpus=2)
 		model.compile(loss={'ctc': lambda y_true, output: output}, optimizer=ada_d)
 		#test_func = K.function([input_data], [output])
-		return model
+		return model, model_data
 
 
 	def ctc_lambda(self, args):
@@ -93,11 +96,14 @@ class speech_rnn():
 
 	def TestModel(self):
 		self.get_batch()
-		classes = self.model.predict(self.inputs, batch_size=32)
+		classes = self.model_data.predict(self.inputs['the_input'], batch_size=32)
 		return classes
 
 
 	def Evaluate(self):
-		classes = self.model.evaluate(self.inputs, self.outputs, batch_size=32, verbose=1, sample_weight=None)
+		classes = self.model_data.evaluate(self.inputs['the_input'], self.inputs['the_labels'], batch_size=32, verbose=1, sample_weight=None)
 		return classes
 		
+
+	def generate_arrays(self, feats='feature\\cmvn.dict', labels='label\\num_label.dict'):
+		pass

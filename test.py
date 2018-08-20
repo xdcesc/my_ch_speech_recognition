@@ -23,5 +23,5 @@ if __name__ == '__main__':
 	am = acoustic_model.speech_rnn(cmvn_mat, label_mat)
 	print('success import amodel')
 	am.LoadModel()
-	classes = am.Evaluate()
-	print(classes)
+	predict = am.TestModel()
+	print(predict)
