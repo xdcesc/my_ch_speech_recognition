@@ -83,7 +83,7 @@ class speech_rnn():
 
 	def TrainModel(self):
 		self.get_batch()
-		self.model.fit(self.inputs, self.outputs, epochs=1, batch_size=16)
+		self.model.fit(self.inputs, self.outputs, epochs=50, batch_size=16)
 		self.SaveModel()
 
 
@@ -93,5 +93,5 @@ class speech_rnn():
 
 	def TestModel(self):
 		self.get_batch()
-		self.inputs = np.array(self.inputs)
-		self.model.predict(self, self.inputs, batch_size=32, verbose=0)
+		inputs = np.array(self.inputs)
+		self.model.predict(self, inputs, batch_size=32, verbose=0)
