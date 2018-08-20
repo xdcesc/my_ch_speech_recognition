@@ -9,8 +9,8 @@
 - 模型训练
     + `train.py`
 
-
-第一次写，非常开心。现阶段相当于只写了一个中文识别最小系统。
+该模型作为一个练手小项目。
+第一次写，非常开心。相当于写了一个中文识别最小系统。
 
 [我的github: https://github.com/audier](https://github.com/audier)
 
