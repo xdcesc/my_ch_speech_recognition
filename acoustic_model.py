@@ -101,8 +101,8 @@ class speech_rnn():
 		shape = base_pred.shape
 		r = K.ctc_decode(base_pred, input_length=np.ones(shape[0])*shape[1], greedy = True, beam_width=100, top_paths=1)
 		r1 = K.get_value(r[0][0])
-		r1=r1
-		return r1
+		r1=r1[0]
+		return shape,r[0][0]
 
 
 	def Evaluate(self):
