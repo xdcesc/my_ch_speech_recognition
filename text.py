@@ -14,14 +14,17 @@ class label(object):
 	def dict_test(self):
 		all_word = []
 		label = []
-		# python字典生成方法，没有语音，只生成汉字对应了序号
+		# python生成汉字到编号的映射，然后生成汉字对应了序号
 		label = ['hello','hello','hello','hi','hi','hi','you', 'you']
 		all_word += [word for word in label]
 		counter = Counter(all_word)
 		words = sorted(counter)
 		words_size = len(words)
+		# 生成汉字到编号的映射
 		word_num_map = dict(zip(words, range(words_size)))
+		# 映射函数
 		to_num = lambda word: word_num_map.get(word, 4)
+		# 对字符列表映射到编号
 		label_vector = list(map(to_num,['hello','you','hi','you']))
 		print(label_vector)
 		print('\nall words i use :\n',all_word)

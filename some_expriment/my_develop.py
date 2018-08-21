@@ -20,7 +20,7 @@ def dict_test():
 	words_size = len(words)
 	word_num_map = dict(zip(words, range(words_size)))
 	to_num = lambda word: word_num_map.get(word, 4)
-	label_vector = list(map(to_num,['hello','you','hi','you']))
+	label_vector = list(map(to_num,['hello','hello','hello','hi','hi','hi','you', 'you']))
 	print(label_vector)
 	print('\nall words i use :\n',all_word)
 	print('\nafter counter:\n',counter)
@@ -79,4 +79,4 @@ def random_num(batch_size=32):
 
 
 if __name__ == '__main__':
-	random_num()
+	dict_test()
