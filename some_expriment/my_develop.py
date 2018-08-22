@@ -81,5 +81,16 @@ def inputlen(input_length):
 	input_length = input_length // 8
 	print(input_length)
 
+
+def generator():
+	fileObject = open('../wav.scp', 'r')
+	
+	for i in fileObject.readlines():
+		i = i.strip('\n')
+		fs, audio = wav.read(i)
+		mfcc_feat = mfcc(audio, samplerate=fs, numcep=13)
+		yield mfcc_feat
+
 if __name__ == '__main__':
-	inputlen(100)
+	for i in generator():
+		print(i)
