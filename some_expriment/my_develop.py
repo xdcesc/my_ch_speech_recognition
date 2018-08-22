@@ -77,6 +77,9 @@ def random_num(batch_size=32):
 		ran_num = random.randint(0,32 - 1)
 		print(ran_num)
 
+def inputlen(input_length):
+	input_length = input_length // 8
+	print(input_length)
 
 if __name__ == '__main__':
-	dict_test()
+	inputlen(100)
