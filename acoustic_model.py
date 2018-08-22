@@ -17,12 +17,15 @@ class speech_rnn():
 		super(speech_rnn, self).__init__()
 		self.feats = feats
 		self.labels = labels
+		self.AUDIO_LENGTH = 500
+		self.AUDIO_FEATURE_LENGTH = 26
+		self.OUTPUT_SIZE = 1200
 		self.model, self.model_data = self.Rnn_model()
 		self.inputs,self.outputs = self.get_batch()
 
 
 	def Rnn_model(self):
-		input_data = Input(name='the_input', shape=(500, 26))
+		input_data = Input(name='the_input', shape=(500, self.AUDIO_FEATURE_LENGTH,))
 		layer_h1 = Dense(512, activation="relu", use_bias=True, kernel_initializer='he_normal')(input_data)
 		layer_h1 = Dropout(0.3)(layer_h1)
 		layer_h2 = Dense(512, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h1)
@@ -74,42 +77,35 @@ class speech_rnn():
 		return (inputs, outputs)
 
 
-	def SaveModel(self, filename1='model/speech_rnn.mdl', filename2='model/speech_rnn_predict.mdl'):
-		self.model.save_weights(filename1)
-		self.model_data.save_weights(filename2)
+	def SaveModel(self, filename='model/speech_rnn.mdl'):
+		self.model.save_weights(filename)
 		f = open('model/model.txt', 'w')
-		f.write(filename1)
+		f.write(filename)
 		f.close()
 
 
 	def TrainModel(self):
 		self.get_batch()
-		self.model.fit(self.inputs, self.outputs, epochs=1, batch_size=16)
+		self.model.fit(self.inputs, self.outputs, epochs=50, batch_size=16)
 		self.SaveModel()
 
 
-	def LoadModel(self, filename1='model/speech_rnn.mdl', filename2='model/speech_rnn_predict.mdl'):
-		self.model.load_weights(filename1)
-		self.model_data.load_weights(filename2)
+	def LoadModel(self, filename = 'model/speech_rnn.mdl'):
+		self.model.load_weights(filename)
 
 
 	def TestModel(self):
 		self.get_batch()
-		base_pred = self.model_data.predict(self.inputs['the_input'][1:2,: ,:], batch_size=1)
+		base_pred = self.model_data.predict(self.inputs['the_input'][1:10], batch_size=32)
 		base_pred =base_pred[:, :, :]
 		shape = base_pred.shape
-		print(shape)
-		in_len = np.zeros((1),dtype = np.int32)
-		in_len[0] = 500;
-		r = K.ctc_decode(base_pred, in_len, greedy = True, beam_width=1, top_paths=1)
+		r = K.ctc_decode(base_pred, input_length=np.ones(shape[0])*shape[1], greedy = True, beam_width=100, top_paths=1)
 		r1 = K.get_value(r[0][0])
-		print('r1', r1)
 		r1=r1[0]
-		return base_pred
+		return shape,r[0][0]
 
 
 	def Evaluate(self):
-		self.get_batch()
 		classes = self.model_data.evaluate(self.inputs['the_input'], self.inputs['the_labels'], batch_size=32, verbose=1, sample_weight=None)
 		return classes
 		

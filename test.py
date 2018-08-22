@@ -23,6 +23,6 @@ if __name__ == '__main__':
 	am = acoustic_model.speech_rnn(cmvn_mat, label_mat)
 	print('success import amodel')
 	am.LoadModel()
-	basepre = am.TestModel()
-	for i in range(1,100):
-		print(basepre[0][i])
+	shape,predict = am.TestModel()
+	print(shape)
+	print(predict)
