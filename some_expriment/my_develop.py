@@ -92,5 +92,6 @@ def generator():
 		yield mfcc_feat
 
 if __name__ == '__main__':
-	for i in generator():
+	mfccfile = generator()
+	for i in mfccfile:
 		print(i)
