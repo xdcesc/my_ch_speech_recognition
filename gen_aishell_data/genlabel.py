@@ -24,4 +24,4 @@ def gen_label(readfile,writefile):
 	listobj.close()
 				
 
-gen_label('dev.wav.lst', 'dev.syllable.txt')
+gen_label('dev.wav.lst', 'dev.syllabel.txt')
