@@ -6,7 +6,7 @@ import tensorflow as tf
 import numpy as np
 from keras.layers import Reshape
 import random
-
+from pypinyin import pinyin, lazy_pinyin, Style
 
 #测试python字典的生成方式
 def dict_test():
@@ -91,7 +91,11 @@ def generator():
 		mfcc_feat = mfcc(audio, samplerate=fs, numcep=13)
 		yield mfcc_feat
 
+def make_pinyin(textlabel):
+	x = pinyin(textlabel,style=Style.TONE3)
+	return x
+
+
 if __name__ == '__main__':
-	mfccfile = generator()
-	for i in mfccfile:
-		print(i)
+	x = make_pinyin('嗯嗯')
+	print(x)
