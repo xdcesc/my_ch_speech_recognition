@@ -1,4 +1,5 @@
 import os
+import random
 import numpy as np
 import scipy.io.wavfile as wav
 from collections import Counter
@@ -84,26 +85,29 @@ def get_batch(x, y, train=False, max_pred_len=50, input_length=500):
     return (inputs, outputs)
 
 
-def data_generate(wavpath = 'D:\\workspace\\github\\data', textfile = 'D:\\workspace\\github\\data\\test.txt', bath_size=1):
+def data_generate(wavpath = 'E:\\Data\\data_thchs30\\train', textfile = 'E:\\Data\\thchs30\\train.syllable.txt', bath_size=4):
 	wavdict,fileids = genwavlist(wavpath)
-	print(wavdict)
+	#print(wavdict)
 	content_dict,lexcion = text2num(textfile)
 	genloop = len(fileids)//bath_size
-	for i in range(genloop):
-		print("the ",i,"'s loop")
+	print("all loop :", genloop)
+	while True:
 		feats = []
 		labels = []
+		i = random.randint(0,genloop-1)
 		for x in range(bath_size):
 			num = i * bath_size + x
 			fileid = fileids[num]
+			print(wavdict[fileid])
 			mfcc_feat = compute_mfcc(wavdict[fileid])
 			feats.append(mfcc_feat)
 			labels.append(content_dict[fileid])
 		feats = np.array(feats)
 		labels = np.array(labels)
-		print(np.shape(feats))
-		print(np.shape(labels))
+		#print(np.shape(feats))
+		#print(np.shape(labels))
 		inputs, outputs = get_batch(feats, labels)
+		print(np.shape(labels))
 		yield inputs, outputs
 
 
@@ -143,7 +147,7 @@ def creatModel():
 
 model, model_data = creatModel()
 yielddatas = data_generate()
-model.fit_generator(yielddatas,1)
+model.fit_generator(yielddatas,9600)
 model.save_weights('model.mdl')
 model_data.save_weights('model_data.mdl')
 #text2num('E:\\Data\\thchs30\\cv.syllable.txt')
