@@ -1,3 +1,9 @@
+# -----------------------------------------------------------------------------------------------------
+'''
+&usage:		训练一个中文识别模型
+@author:	hongwen sun
+'''
+# -----------------------------------------------------------------------------------------------------
 import os
 import random
 import numpy as np
@@ -13,6 +19,9 @@ from keras.optimizers import SGD, Adadelta
 from keras.layers.recurrent import GRU
 from keras.preprocessing.sequence import pad_sequences
 
+
+
+# 生成音频列表
 def genwavlist(wavpath):
 	wavfiles = {}
 	fileids = []
@@ -25,7 +34,7 @@ def genwavlist(wavpath):
 				fileids.append(fileid)
 	return wavfiles,fileids
 
-
+# 对音频文件提取mfcc特征
 def compute_mfcc(file):
 	fs, audio = wav.read(file)
 	mfcc_feat = mfcc(audio, samplerate=fs, numcep=26)
@@ -34,7 +43,7 @@ def compute_mfcc(file):
 	mfcc_feat = pad_sequences(mfcc_feat, maxlen=500, dtype='float', padding='post', truncating='post').T
 	return mfcc_feat
 
-
+# 利用训练数据生成词典
 def gendict(textfile_path):
 	dicts = []
 	textfile = open(textfile_path,'r+')
@@ -47,11 +56,12 @@ def gendict(textfile_path):
 	words = sorted(counter)
 	wordsize = len(words)
 	word2num = dict(zip(words, range(wordsize)))
-	return word2num,len(word2num)
+	num2word = dict(zip(range(wordsize), words))
+	return word2num, num2word #1176个音素
 
-
+# 文本转化为数字
 def text2num(textfile_path):
-	lexcion,wordnum = gendict(textfile_path)
+	lexcion,num2word = gendict(textfile_path)
 	word2num = lambda word:lexcion.get(word, 0)
 	textfile = open(textfile_path, 'r+')
 	content_dict = {}
@@ -66,7 +76,7 @@ def text2num(textfile_path):
 		content_dict[cont_id] = content
 	return content_dict,lexcion
 
-
+# 将数据格式整理为能够被网络所接受的格式
 def get_batch(x, y, train=False, max_pred_len=50, input_length=500):
     X = np.expand_dims(x, axis=3)
     X = x # for model2
@@ -84,7 +94,7 @@ def get_batch(x, y, train=False, max_pred_len=50, input_length=500):
     outputs = {'ctc': np.zeros([x.shape[0]])}  # dummy data for dummy loss function
     return (inputs, outputs)
 
-
+# 数据生成器，默认音频为thchs30\train,默认标注为thchs30\train.syllable
 def data_generate(wavpath = 'E:\\Data\\data_thchs30\\train', textfile = 'E:\\Data\\thchs30\\train.syllable.txt', bath_size=4):
 	wavdict,fileids = genwavlist(wavpath)
 	#print(wavdict)
@@ -98,7 +108,7 @@ def data_generate(wavpath = 'E:\\Data\\data_thchs30\\train', textfile = 'E:\\Dat
 		for x in range(bath_size):
 			num = i * bath_size + x
 			fileid = fileids[num]
-			print(wavdict[fileid])
+			#print(wavdict[fileid])
 			mfcc_feat = compute_mfcc(wavdict[fileid])
 			feats.append(mfcc_feat)
 			labels.append(content_dict[fileid])
@@ -107,7 +117,7 @@ def data_generate(wavpath = 'E:\\Data\\data_thchs30\\train', textfile = 'E:\\Dat
 		#print(np.shape(feats))
 		#print(np.shape(labels))
 		inputs, outputs = get_batch(feats, labels)
-		print(np.shape(labels))
+		#print(np.shape(labels))
 		yield inputs, outputs
 
 
@@ -120,14 +130,14 @@ def ctc_lambda(args):
 def creatModel():
 	input_data = Input(name='the_input', shape=(500, 26))
 	layer_h1 = Dense(512, activation="relu", use_bias=True, kernel_initializer='he_normal')(input_data)
-	layer_h1 = Dropout(0.3)(layer_h1)
+	#layer_h1 = Dropout(0.3)(layer_h1)
 	layer_h2 = Dense(512, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h1)
 	layer_h3_1 = GRU(512, return_sequences=True, kernel_initializer='he_normal', dropout=0.3)(layer_h2) # GRU
 	layer_h3_2 = GRU(512, return_sequences=True, go_backwards=True, kernel_initializer='he_normal', dropout=0.3)(layer_h2) # GRU
 	layer_h3 = add([layer_h3_1, layer_h3_2])
 	layer_h4 = Dense(512, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h3)
-	layer_h4 = Dropout(0.3)(layer_h4)
-	layer_h5 = Dense(1200, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h4)
+	#layer_h4 = Dropout(0.3)(layer_h4)
+	layer_h5 = Dense(1177, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h4)
 	output = Activation('softmax', name='Activation0')(layer_h5)
 	model_data = Model(inputs=input_data, outputs=output)
 	#ctc
@@ -145,9 +155,37 @@ def creatModel():
 	return model, model_data
 
 
-model, model_data = creatModel()
-yielddatas = data_generate()
-model.fit_generator(yielddatas,9600)
-model.save_weights('model.mdl')
-model_data.save_weights('model_data.mdl')
-#text2num('E:\\Data\\thchs30\\cv.syllable.txt')
+# 将model预测出softmax的值，使用ctc的准则解码，然后通过字典num2word转为文字
+def decode_ctc(result, num2word):
+	result = result[:, :, :]
+	in_len = np.zeros((1), dtype = np.int32)
+	in_len[0] = 50;
+	r = K.ctc_decode(result, in_len, greedy = True, beam_width=1, top_paths=1)
+	r1 = K.get_value(r[0][0])
+	r1 = r1[0]
+	text = []
+	for i in r1:
+		text.append(num2word[i])
+	return r1, text
+
+# 训练模型
+def train():
+	yielddatas = data_generate()
+	model, model_data = creatModel()
+	model.fit_generator(yielddatas, steps_per_epoch=2000, epochs=1)
+	model.save_weights('model.mdl')
+	model_data.save_weights('model_data.mdl')
+
+def test():
+	word2num, num2word = gendict('E:\\Data\\thchs30\\train.syllable.txt')
+	yielddatas = data_generate(bath_size=1)
+	model, model_data = creatModel()
+	model_data.load_weights('model_data.mdl')
+	result = model_data.predict_generator(yielddatas, steps=1)
+	result, text = decode_ctc(result, num2word)
+	print('数字结果： ', result)
+	print(text)
+
+
+if __name__ == '__main__':
+	train()
