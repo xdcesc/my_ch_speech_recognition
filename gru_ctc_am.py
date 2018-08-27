@@ -1,7 +1,8 @@
 # -----------------------------------------------------------------------------------------------------
 '''
-&usage:		训练一个中文识别模型
+&usage:		GRU-CTC的中文语音识别模型
 @author:	hongwen sun
+#net_str:	dense -> dense -> bi_gru -> dense -> dense -> softmax -> ctc_cost
 '''
 # -----------------------------------------------------------------------------------------------------
 import os
@@ -20,7 +21,11 @@ from keras.layers.recurrent import GRU
 from keras.preprocessing.sequence import pad_sequences
 
 
-
+# -----------------------------------------------------------------------------------------------------
+'''
+&usage:		[audio]对音频文件进行处理，包括生成总的文件列表、特征提取等
+'''
+# -----------------------------------------------------------------------------------------------------
 # 生成音频列表
 def genwavlist(wavpath):
 	wavfiles = {}
@@ -43,6 +48,12 @@ def compute_mfcc(file):
 	mfcc_feat = pad_sequences(mfcc_feat, maxlen=500, dtype='float', padding='post', truncating='post').T
 	return mfcc_feat
 
+
+# -----------------------------------------------------------------------------------------------------
+'''
+&usage:		[text]对文本标注文件进行处理，包括生成拼音到数字的映射，以及将拼音标注转化为数字的标注转化
+'''
+# -----------------------------------------------------------------------------------------------------
 # 利用训练数据生成词典
 def gendict(textfile_path):
 	dicts = []
@@ -76,7 +87,13 @@ def text2num(textfile_path):
 		content_dict[cont_id] = content
 	return content_dict,lexcion
 
-# 将数据格式整理为能够被网络所接受的格式
+
+# -----------------------------------------------------------------------------------------------------
+'''
+&usage:		[data]数据生成器构造，用于训练的数据生成，包括输入特征及标注的生成，以及将数据转化为特定格式
+'''
+# -----------------------------------------------------------------------------------------------------
+# 将数据格式整理为能够被网络所接受的格式，被data_generator调用
 def get_batch(x, y, train=False, max_pred_len=50, input_length=500):
     X = np.expand_dims(x, axis=3)
     X = x # for model2
@@ -94,7 +111,7 @@ def get_batch(x, y, train=False, max_pred_len=50, input_length=500):
     outputs = {'ctc': np.zeros([x.shape[0]])}  # dummy data for dummy loss function
     return (inputs, outputs)
 
-# 数据生成器，默认音频为thchs30\train,默认标注为thchs30\train.syllable
+# 数据生成器，默认音频为thchs30\train,默认标注为thchs30\train.syllable,被模型训练方法fit_generator调用
 def data_generate(wavpath = 'E:\\Data\\data_thchs30\\train', textfile = 'E:\\Data\\thchs30\\train.syllable.txt', bath_size=4):
 	wavdict,fileids = genwavlist(wavpath)
 	#print(wavdict)
@@ -104,36 +121,43 @@ def data_generate(wavpath = 'E:\\Data\\data_thchs30\\train', textfile = 'E:\\Dat
 	while True:
 		feats = []
 		labels = []
+		# 随机选择某个音频文件作为训练数据
 		i = random.randint(0,genloop-1)
 		for x in range(bath_size):
 			num = i * bath_size + x
 			fileid = fileids[num]
-			#print(wavdict[fileid])
+			# 提取音频文件的特征
 			mfcc_feat = compute_mfcc(wavdict[fileid])
 			feats.append(mfcc_feat)
+			# 提取标注对应的label值
 			labels.append(content_dict[fileid])
+		# 将数据格式修改为get_batch可以处理的格式
 		feats = np.array(feats)
 		labels = np.array(labels)
-		#print(np.shape(feats))
-		#print(np.shape(labels))
+		# 调用get_batch将数据处理为训练所需的格式
 		inputs, outputs = get_batch(feats, labels)
-		#print(np.shape(labels))
 		yield inputs, outputs
 
 
+# -----------------------------------------------------------------------------------------------------
+'''
+&usage:		[net model]构件网络结构，用于最终的训练和识别
+'''
+# -----------------------------------------------------------------------------------------------------
+# 被creatModel调用，用作ctc损失的计算
 def ctc_lambda(args):
 	labels, y_pred, input_length, label_length = args
 	y_pred = y_pred[:, :, :]
 	return K.ctc_batch_cost(labels, y_pred, input_length, label_length)
 
-
+# 构建网络结构，用于模型的训练和识别
 def creatModel():
 	input_data = Input(name='the_input', shape=(500, 26))
 	layer_h1 = Dense(512, activation="relu", use_bias=True, kernel_initializer='he_normal')(input_data)
 	#layer_h1 = Dropout(0.3)(layer_h1)
 	layer_h2 = Dense(512, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h1)
-	layer_h3_1 = GRU(512, return_sequences=True, kernel_initializer='he_normal', dropout=0.3)(layer_h2) # GRU
-	layer_h3_2 = GRU(512, return_sequences=True, go_backwards=True, kernel_initializer='he_normal', dropout=0.3)(layer_h2) # GRU
+	layer_h3_1 = GRU(512, return_sequences=True, kernel_initializer='he_normal', dropout=0.3)(layer_h2)
+	layer_h3_2 = GRU(512, return_sequences=True, go_backwards=True, kernel_initializer='he_normal', dropout=0.3)(layer_h2)
 	layer_h3 = add([layer_h3_1, layer_h3_2])
 	layer_h4 = Dense(512, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h3)
 	#layer_h4 = Dropout(0.3)(layer_h4)
@@ -155,9 +179,14 @@ def creatModel():
 	return model, model_data
 
 
-# 将model预测出softmax的值，使用ctc的准则解码，然后通过字典num2word转为文字
-def decode_ctc(result, num2word):
-	result = result[:, :, :]
+# -----------------------------------------------------------------------------------------------------
+'''
+&usage:		模型的解码，用于将数字信息映射为拼音
+'''
+# -----------------------------------------------------------------------------------------------------
+# 对model预测出的softmax的矩阵，使用ctc的准则解码，然后通过字典num2word转为文字
+def decode_ctc(num_result, num2word):
+	result = num_result[:, :, :]
 	in_len = np.zeros((1), dtype = np.int32)
 	in_len[0] = 50;
 	r = K.ctc_decode(result, in_len, greedy = True, beam_width=1, top_paths=1)
@@ -168,24 +197,49 @@ def decode_ctc(result, num2word):
 		text.append(num2word[i])
 	return r1, text
 
+
+# -----------------------------------------------------------------------------------------------------
+'''
+&usage:		模型的训练
+'''
+# -----------------------------------------------------------------------------------------------------
 # 训练模型
 def train():
+	# 准备训练所需数据
 	yielddatas = data_generate()
+	# 导入模型结构，训练模型，保存模型参数
 	model, model_data = creatModel()
 	model.fit_generator(yielddatas, steps_per_epoch=2000, epochs=1)
 	model.save_weights('model.mdl')
 	model_data.save_weights('model_data.mdl')
 
+
+# -----------------------------------------------------------------------------------------------------
+'''
+&usage:		模型的测试，看识别结果是否正确
+'''
+# -----------------------------------------------------------------------------------------------------
+# 测试模型
 def test():
+	# 准备测试数据，以及生成字典
 	word2num, num2word = gendict('E:\\Data\\thchs30\\train.syllable.txt')
 	yielddatas = data_generate(bath_size=1)
+	# 载入训练好的模型，并进行识别
 	model, model_data = creatModel()
 	model_data.load_weights('model_data.mdl')
 	result = model_data.predict_generator(yielddatas, steps=1)
+	# 将数字结果转化为文本结果
 	result, text = decode_ctc(result, num2word)
 	print('数字结果： ', result)
-	print(text)
+	print('文本结果：', text)
 
 
+# -----------------------------------------------------------------------------------------------------
+'''
+@author:	hongwen sun
+&e-mail:	hit_master@163.com
+'''
+# -----------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
 	train()
+	test()
