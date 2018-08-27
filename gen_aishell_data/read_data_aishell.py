@@ -130,21 +130,38 @@ class DataSpeech():
 		返回：
 			三个包含wav特征矩阵的神经网络输入值，和一个标定的类别矩阵神经网络输出值
 		'''
-		bili = 2
 		if(self.type=='train'):
-			bili = 24
-			
-		# 读取一个文件
-		if(n_start < 10000):
-			filename = self.dic_wavlist_thchs30[self.list_wavnum_thchs30[n_start]]
-			list_symbol=self.dic_symbollist_thchs30[self.list_symbolnum_thchs30[n_start]]
-		elif(n_start >= 110000):
-			filename = self.dic_wavlist_aishell[self.list_wavnum_aishell[n_start-110000]]
-			list_symbol=self.dic_symbollist_aishell[self.list_symbolnum_aishell[n_start-110000]]
+			# 读取一个文件
+			if(n_start < 10000):
+				filename = self.dic_wavlist_thchs30[self.list_wavnum_thchs30[n_start]]
+				list_symbol=self.dic_symbollist_thchs30[self.list_symbolnum_thchs30[n_start]]
+			elif(n_start >= 110000):
+				filename = self.dic_wavlist_aishell[self.list_wavnum_aishell[n_start-110000]]
+				list_symbol=self.dic_symbollist_aishell[self.list_symbolnum_aishell[n_start-110000]]
+			else:
+				filename = self.dic_wavlist_stcmds[self.list_wavnum_stcmds[n_start-10000]]
+				list_symbol=self.dic_symbollist_stcmds[self.list_symbolnum_stcmds[n_start-10000]]
+		elif(self.type=='dev'):
+			# 读取一个文件
+			if(n_start < 893):
+				filename = self.dic_wavlist_thchs30[self.list_wavnum_thchs30[n_start]]
+				list_symbol=self.dic_symbollist_thchs30[self.list_symbolnum_thchs30[n_start]]
+			elif(n_start >= 1493):
+				filename = self.dic_wavlist_aishell[self.list_wavnum_aishell[n_start-1493]]
+				list_symbol=self.dic_symbollist_aishell[self.list_symbolnum_aishell[n_start-1493]]
+			else:
+				filename = self.dic_wavlist_stcmds[self.list_wavnum_stcmds[n_start-893]]
+				list_symbol=self.dic_symbollist_stcmds[self.list_symbolnum_stcmds[n_start-893]]
 		else:
-			filename = self.dic_wavlist_stcmds[self.list_wavnum_stcmds[n_start-10000]]
-			list_symbol=self.dic_symbollist_stcmds[self.list_symbolnum_stcmds[n_start-10000]]
-
+			if(n_start < 2495):
+				filename = self.dic_wavlist_thchs30[self.list_wavnum_thchs30[n_start]]
+				list_symbol=self.dic_symbollist_thchs30[self.list_symbolnum_thchs30[n_start]]
+			elif(n_start >= 4495):
+				filename = self.dic_wavlist_aishell[self.list_wavnum_aishell[n_start-4495]]
+				list_symbol=self.dic_symbollist_aishell[self.list_symbolnum_aishell[n_start-4495]]
+			else:
+				filename = self.dic_wavlist_stcmds[self.list_wavnum_stcmds[n_start-2495]]
+				list_symbol=self.dic_symbollist_stcmds[self.list_symbolnum_stcmds[n_start-2495]]			
 		
 		if('Windows' == plat.system()):
 			filename = filename.replace('/','\\') # windows系统下需要执行这一行，对文件路径做特别处理
