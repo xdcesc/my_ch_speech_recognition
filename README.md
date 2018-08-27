@@ -1,4 +1,7 @@
 # GRU-CTC中文语音识别
+
+[![GPL-3.0 Licensed](https://img.shields.io/badge/License-GPL3.0-blue.svg?style=flat)](https://opensource.org/licenses/GPL-3.0) [![TensorFlow Version](https://img.shields.io/badge/Tensorflow-1.4+-blue.svg)](https://www.tensorflow.org/) [![Keras Version](https://img.shields.io/badge/Keras-2.0+-blue.svg)](https://keras.io/) [![Python Version](https://img.shields.io/badge/Python-3.x-blue.svg)](https://www.python.org/) 
+
 ### 基于keras的中文语音识别
 - 该项目实现了GRU-CTC中文语音识别，所有代码都在`gru_ctc_am.py`中，包括：
    - 音频文件特征提取
@@ -7,6 +10,8 @@
    - 构建模型
    - 模型训练及解码
 - 之外还包括将aishell数据处理为thchs30数据格式，合并数据进行训练。代码及数据放在`gen_aishell_data`中。
+
+默认数据集为thchs30，参考gen_aishell_data中的数据及代码，也可以使用aishell的数据进行训练。
 
 #### 音频文件特征提取
 ```python
