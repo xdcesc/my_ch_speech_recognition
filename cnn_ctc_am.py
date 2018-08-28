@@ -95,7 +95,7 @@ def text2num(textfile_path):
 '''
 # -----------------------------------------------------------------------------------------------------
 # 将数据格式整理为能够被网络所接受的格式，被data_generator调用
-def get_batch(x, y, train=False, max_pred_len=50, input_length=500):
+def get_batch(x, y, train=False, max_pred_len=50, input_length=250):
     X = np.expand_dims(x, axis=4)
     X = x # for model2
 #     labels = np.ones((y.shape[0], max_pred_len)) *  -1 # 3 # , dtype=np.uint8
@@ -134,7 +134,6 @@ def data_generate(wavpath, textfile, bath_size):
 			labels.append(content_dict[fileid])
 		# 将数据格式修改为get_batch可以处理的格式
 		feats = np.array(feats)
-		print(feats.shape)
 		labels = np.array(labels)
 		# 调用get_batch将数据处理为训练所需的格式
 		inputs, outputs = get_batch(feats, labels)
@@ -160,11 +159,13 @@ def creatModel():
 	layer_h1 = BatchNormalization(mode=0,axis=-1)(layer_h1)
 	layer_h2 = Conv2D(32, (3,3), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(layer_h1) # 卷积层
 	layer_h2 = BatchNormalization(axis=-1)(layer_h2)
-	layer_h4 = Conv2D(64, (3,3), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(layer_h2) # 卷积层
+	layer_h3 = MaxPooling2D(pool_size=(2,2), strides=None, padding="valid")(layer_h2)
+	# 250,13,64
+	layer_h4 = Conv2D(64, (3,3), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(layer_h3) # 卷积层
 	layer_h4 = BatchNormalization(axis=-1)(layer_h4)
 	layer_h5 = Conv2D(64, (3,3), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(layer_h4) # 卷积层
 	layer_h5 = BatchNormalization(axis=-1)(layer_h5)
-	layer_h6 = Reshape((500, 1664))(layer_h5) #Reshape层
+	layer_h6 = Reshape((250, 832))(layer_h5) #Reshape层
 	layer_h7 = Dense(128, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h6) # 全连接层
 	layer_h7 = BatchNormalization(axis=1)(layer_h7)
 	layer_h8 = Dense(1177, use_bias=True, kernel_initializer='he_normal')(layer_h7) # 全连接层
@@ -195,7 +196,7 @@ def creatModel():
 def decode_ctc(num_result, num2word):
 	result = num_result[:, :, :]
 	in_len = np.zeros((1), dtype = np.int32)
-	in_len[0] = 50;
+	in_len[0] = 250;
 	r = K.ctc_decode(result, in_len, greedy = True, beam_width=1, top_paths=1)
 	r1 = K.get_value(r[0][0])
 	r1 = r1[0]
@@ -213,8 +214,8 @@ def decode_ctc(num_result, num2word):
 # 训练模型
 def train(wavpath = 'E:\\Data\\data_thchs30\\train', 
 		textfile = 'E:\\Data\\thchs30\\train.syllable.txt', 
-		bath_size = 1, 
-		steps_per_epoch = 100, 
+		bath_size = 4, 
+		steps_per_epoch = 2500, 
 		epochs = 1):
 	# 准备训练所需数据
 	yielddatas = data_generate(wavpath, textfile, bath_size)
