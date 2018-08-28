@@ -155,15 +155,21 @@ def ctc_lambda(args):
 def creatModel():
 	input_data = Input(name='the_input', shape=(500, 26))
 	layer_h1 = Dense(512, activation="relu", use_bias=True, kernel_initializer='he_normal')(input_data)
-	#layer_h1 = Dropout(0.3)(layer_h1)
+	layer_h1 = Dropout(0.2)(layer_h1)
 	layer_h2 = Dense(512, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h1)
-	layer_h3_1 = GRU(512, return_sequences=True, kernel_initializer='he_normal', dropout=0.3)(layer_h2)
-	layer_h3_2 = GRU(512, return_sequences=True, go_backwards=True, kernel_initializer='he_normal', dropout=0.3)(layer_h2)
-	layer_h3 = add([layer_h3_1, layer_h3_2])
-	layer_h4 = Dense(512, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h3)
-	#layer_h4 = Dropout(0.3)(layer_h4)
-	layer_h5 = Dense(1177, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h4)
-	output = Activation('softmax', name='Activation0')(layer_h5)
+	layer_h2 = Dropout(0.2)(layer_h2)
+	layer_h3 = Dense(512, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h2)
+	layer_h4_1 = GRU(512, return_sequences=True, kernel_initializer='he_normal', dropout=0.3)(layer_h3)
+	layer_h4_2 = GRU(512, return_sequences=True, go_backwards=True, kernel_initializer='he_normal', dropout=0.3)(layer_h3)
+	layer_h4 = add([layer_h4_1, layer_h4_2])
+	layer_h5 = Dense(512, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h4)
+	layer_h5 = Dropout(0.2)(layer_h5)
+	layer_h6 = Dense(512, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h5)
+	layer_h6 = Dropout(0.2)(layer_h6)
+	layer_h7 = Dense(512, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h6)
+	layer_h7 = Dropout(0.2)(layer_h7)
+	layer_h8 = Dense(1177, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h7)
+	output = Activation('softmax', name='Activation0')(layer_h8)
 	model_data = Model(inputs=input_data, outputs=output)
 	#ctc
 	labels = Input(name='the_labels', shape=[50], dtype='float32')
@@ -189,7 +195,7 @@ def creatModel():
 def decode_ctc(num_result, num2word):
 	result = num_result[:, :, :]
 	in_len = np.zeros((1), dtype = np.int32)
-	in_len[0] = 50;
+	in_len[0] = 500;
 	r = K.ctc_decode(result, in_len, greedy = True, beam_width=1, top_paths=1)
 	r1 = K.get_value(r[0][0])
 	r1 = r1[0]
@@ -214,7 +220,8 @@ def train(wavpath = 'E:\\Data\\data_thchs30\\train',
 	yielddatas = data_generate(wavpath, textfile, bath_size)
 	# 导入模型结构，训练模型，保存模型参数
 	model, model_data = creatModel()
-	model.load_weights('model.mdl')
+	if os.path.exists('model.mdl'):
+		model.load_weights('model.mdl')
 	model.fit_generator(yielddatas, steps_per_epoch=steps_per_epoch, epochs=1)
 	model.save_weights('model.mdl')
 

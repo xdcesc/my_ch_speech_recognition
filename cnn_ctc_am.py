@@ -155,23 +155,30 @@ def ctc_lambda(args):
 def creatModel():
 	input_data = Input(name='the_input', shape=(500, 26, 1))
 	# 500,26,32
-	layer_h1 = Conv2D(32, (3,3), use_bias=False, activation='relu', padding='same', kernel_initializer='he_normal')(input_data) # 卷积层
+	layer_h1 = Conv2D(32, (3,3), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(input_data)
 	layer_h1 = BatchNormalization(mode=0,axis=-1)(layer_h1)
-	layer_h2 = Conv2D(32, (3,3), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(layer_h1) # 卷积层
+	layer_h2 = Conv2D(32, (3,3), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(layer_h1)
 	layer_h2 = BatchNormalization(axis=-1)(layer_h2)
 	layer_h3 = MaxPooling2D(pool_size=(2,2), strides=None, padding="valid")(layer_h2)
 	# 250,13,64
-	layer_h4 = Conv2D(64, (3,3), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(layer_h3) # 卷积层
+	layer_h4 = Conv2D(64, (3,3), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(layer_h3)
 	layer_h4 = BatchNormalization(axis=-1)(layer_h4)
-	layer_h5 = Conv2D(64, (3,3), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(layer_h4) # 卷积层
+	layer_h5 = Conv2D(64, (3,3), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(layer_h4)
 	layer_h5 = BatchNormalization(axis=-1)(layer_h5)
-	layer_h6 = Reshape((250, 832))(layer_h5) #Reshape层
-	layer_h7 = Dense(128, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h6) # 全连接层
-	layer_h7 = BatchNormalization(axis=1)(layer_h7)
-	layer_h8 = Dense(1177, use_bias=True, kernel_initializer='he_normal')(layer_h7) # 全连接层
-	output = Activation('softmax', name='Activation0')(layer_h8)
+	# 250,13,128
+	layer_h6 = Conv2D(128, (3,3), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(layer_h5)
+	layer_h6 = BatchNormalization(axis=-1)(layer_h6)
+	layer_h7 = Conv2D(128, (3,3), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(layer_h6)
+	layer_h7 = BatchNormalization(axis=-1)(layer_h7)
+	# Reshape层
+	layer_h8 = Reshape((250, 1664))(layer_h7) 
+	# 全连接层
+	layer_h9 = Dense(128, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h8)
+	layer_h9 = BatchNormalization(axis=1)(layer_h9)
+	layer_h10 = Dense(1177, use_bias=True, kernel_initializer='he_normal')(layer_h9)
+	output = Activation('softmax', name='Activation0')(layer_h10)
 	model_data = Model(inputs=input_data, outputs=output)
-	#ctc
+	# ctc层
 	labels = Input(name='the_labels', shape=[50], dtype='float32')
 	input_length = Input(name='input_length', shape=[1], dtype='int64')
 	label_length = Input(name='label_length', shape=[1], dtype='int64')
@@ -221,8 +228,9 @@ def train(wavpath = 'E:\\Data\\data_thchs30\\train',
 	yielddatas = data_generate(wavpath, textfile, bath_size)
 	# 导入模型结构，训练模型，保存模型参数
 	model, model_data = creatModel()
-	#model.load_weights('model_cnn.mdl')
-	model.fit_generator(yielddatas, steps_per_epoch=steps_per_epoch, epochs=1)
+	if os.path.exists('model_cnn.mdl'):
+		model.load_weights('model_cnn.mdl')
+	model.fit_generator(yielddatas, steps_per_epoch=steps_per_epoch, epochs=10)
 	model.save_weights('model_cnn.mdl')
 
 
@@ -257,7 +265,7 @@ def test(wavpath = 'E:\\Data\\data_thchs30\\train',
 # -----------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
 	# 通过python gru_ctc_am.py [run type]进行测试
-	run_type = 'train'
+	run_type = sys.argv[1]
 	if run_type == 'test':
 		test()
 	elif run_type == 'train':
