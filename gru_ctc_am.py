@@ -7,6 +7,7 @@
 # -----------------------------------------------------------------------------------------------------
 import os
 import random
+import sys
 import numpy as np
 import scipy.io.wavfile as wav
 from collections import Counter
@@ -209,7 +210,8 @@ def train():
 	yielddatas = data_generate()
 	# 导入模型结构，训练模型，保存模型参数
 	model, model_data = creatModel()
-	model.fit_generator(yielddatas, steps_per_epoch=2000, epochs=1)
+	model.load_weights('model.mdl')
+	model.fit_generator(yielddatas, steps_per_epoch=100, epochs=1)
 	model.save_weights('model.mdl')
 	model_data.save_weights('model_data.mdl')
 
@@ -226,7 +228,7 @@ def test():
 	yielddatas = data_generate(bath_size=1)
 	# 载入训练好的模型，并进行识别
 	model, model_data = creatModel()
-	model_data.load_weights('model_data.mdl')
+	model.load_weights('model.mdl')
 	result = model_data.predict_generator(yielddatas, steps=1)
 	# 将数字结果转化为文本结果
 	result, text = decode_ctc(result, num2word)
@@ -241,5 +243,9 @@ def test():
 '''
 # -----------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
-	train()
-	test()
+	# 通过python gru_ctc_am.py [run type]进行测试
+	run_type = sys.argv[1]
+	if run_type == 'test':
+		test()
+	elif run_type == 'train':
+		train()

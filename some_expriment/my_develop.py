@@ -7,6 +7,7 @@ import numpy as np
 from keras.layers import Reshape
 import random
 from pypinyin import pinyin, lazy_pinyin, Style
+import argparse
 
 #测试python字典的生成方式
 def dict_test():
@@ -97,5 +98,10 @@ def make_pinyin(textlabel):
 
 
 if __name__ == '__main__':
-	x = make_pinyin('嗯嗯')
-	print(x)
+
+	parser = argparse.ArgumentParser(description='manual to this script')
+	parser.add_argument('--gpus', type=str, default = None)
+	parser.add_argument('--batch-size', type=int, default=32)
+	args = parser.parse_args()
+	gpus = args.gpus
+	print(gpus)
