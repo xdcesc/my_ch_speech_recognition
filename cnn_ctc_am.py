@@ -13,7 +13,7 @@ import scipy.io.wavfile as wav
 from collections import Counter
 from python_speech_features import mfcc
 from keras.models import Model
-from keras.layers import Dense, Dropout, Input, Reshape 
+from keras.layers import Dense, Dropout, Input, Reshape, BatchNormalization
 from keras.layers import Conv1D,LSTM,MaxPooling1D, Lambda, TimeDistributed, Activation,Conv2D, MaxPooling2D
 from keras.layers.merge import add, concatenate
 from keras import backend as K
@@ -96,7 +96,7 @@ def text2num(textfile_path):
 # -----------------------------------------------------------------------------------------------------
 # 将数据格式整理为能够被网络所接受的格式，被data_generator调用
 def get_batch(x, y, train=False, max_pred_len=50, input_length=500):
-    X = np.expand_dims(x, axis=3)
+    X = np.expand_dims(x, axis=4)
     X = x # for model2
 #     labels = np.ones((y.shape[0], max_pred_len)) *  -1 # 3 # , dtype=np.uint8
     labels = y
@@ -115,7 +115,6 @@ def get_batch(x, y, train=False, max_pred_len=50, input_length=500):
 # 数据生成器，默认音频为thchs30\train,默认标注为thchs30\train.syllable,被模型训练方法fit_generator调用
 def data_generate(wavpath, textfile, bath_size):
 	wavdict,fileids = genwavlist(wavpath)
-	#print(wavdict)
 	content_dict,lexcion = text2num(textfile)
 	genloop = len(fileids)//bath_size
 	print("all loop :", genloop)
@@ -129,11 +128,13 @@ def data_generate(wavpath, textfile, bath_size):
 			fileid = fileids[num]
 			# 提取音频文件的特征
 			mfcc_feat = compute_mfcc(wavdict[fileid])
+			mfcc_feat = mfcc_feat.reshape(mfcc_feat.shape[0], mfcc_feat.shape[1], 1)
 			feats.append(mfcc_feat)
 			# 提取标注对应的label值
 			labels.append(content_dict[fileid])
 		# 将数据格式修改为get_batch可以处理的格式
 		feats = np.array(feats)
+		print(feats.shape)
 		labels = np.array(labels)
 		# 调用get_batch将数据处理为训练所需的格式
 		inputs, outputs = get_batch(feats, labels)
@@ -153,23 +154,28 @@ def ctc_lambda(args):
 
 # 构建网络结构，用于模型的训练和识别
 def creatModel():
-	input_data = Input(name='the_input', shape=(500, 26))
-	layer_h1 = Dense(512, activation="relu", use_bias=True, kernel_initializer='he_normal')(input_data)
-	#layer_h1 = Dropout(0.3)(layer_h1)
-	layer_h2 = Dense(512, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h1)
-	layer_h3_1 = GRU(512, return_sequences=True, kernel_initializer='he_normal', dropout=0.3)(layer_h2)
-	layer_h3_2 = GRU(512, return_sequences=True, go_backwards=True, kernel_initializer='he_normal', dropout=0.3)(layer_h2)
-	layer_h3 = add([layer_h3_1, layer_h3_2])
-	layer_h4 = Dense(512, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h3)
-	#layer_h4 = Dropout(0.3)(layer_h4)
-	layer_h5 = Dense(1177, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h4)
-	output = Activation('softmax', name='Activation0')(layer_h5)
+	input_data = Input(name='the_input', shape=(500, 26, 1))
+	# 500,26,32
+	layer_h1 = Conv2D(32, (3,3), use_bias=False, activation='relu', padding='same', kernel_initializer='he_normal')(input_data) # 卷积层
+	layer_h1 = BatchNormalization(mode=0,axis=-1)(layer_h1)
+	layer_h2 = Conv2D(32, (3,3), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(layer_h1) # 卷积层
+	layer_h2 = BatchNormalization(axis=-1)(layer_h2)
+	layer_h4 = Conv2D(64, (3,3), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(layer_h2) # 卷积层
+	layer_h4 = BatchNormalization(axis=-1)(layer_h4)
+	layer_h5 = Conv2D(64, (3,3), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(layer_h4) # 卷积层
+	layer_h5 = BatchNormalization(axis=-1)(layer_h5)
+	layer_h6 = Reshape((500, 1664))(layer_h5) #Reshape层
+	layer_h7 = Dense(128, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h6) # 全连接层
+	layer_h7 = BatchNormalization(axis=1)(layer_h7)
+	layer_h8 = Dense(1177, use_bias=True, kernel_initializer='he_normal')(layer_h7) # 全连接层
+	output = Activation('softmax', name='Activation0')(layer_h8)
 	model_data = Model(inputs=input_data, outputs=output)
 	#ctc
 	labels = Input(name='the_labels', shape=[50], dtype='float32')
 	input_length = Input(name='input_length', shape=[1], dtype='int64')
 	label_length = Input(name='label_length', shape=[1], dtype='int64')
 	loss_out = Lambda(ctc_lambda, output_shape=(1,), name='ctc')([labels, output, input_length, label_length])
+
 	model = Model(inputs=[input_data, labels, input_length, label_length], outputs=loss_out)
 	model.summary()
 	ada_d = Adadelta(lr=0.01, rho=0.95, epsilon=1e-06)
@@ -207,16 +213,16 @@ def decode_ctc(num_result, num2word):
 # 训练模型
 def train(wavpath = 'E:\\Data\\data_thchs30\\train', 
 		textfile = 'E:\\Data\\thchs30\\train.syllable.txt', 
-		bath_size = 4, 
+		bath_size = 1, 
 		steps_per_epoch = 100, 
 		epochs = 1):
 	# 准备训练所需数据
 	yielddatas = data_generate(wavpath, textfile, bath_size)
 	# 导入模型结构，训练模型，保存模型参数
 	model, model_data = creatModel()
-	model.load_weights('model.mdl')
+	#model.load_weights('model_cnn.mdl')
 	model.fit_generator(yielddatas, steps_per_epoch=steps_per_epoch, epochs=1)
-	model.save_weights('model.mdl')
+	model.save_weights('model_cnn.mdl')
 
 
 # -----------------------------------------------------------------------------------------------------
@@ -233,7 +239,7 @@ def test(wavpath = 'E:\\Data\\data_thchs30\\train',
 	yielddatas = data_generate(wavpath, textfile, bath_size)
 	# 载入训练好的模型，并进行识别
 	model, model_data = creatModel()
-	model.load_weights('model.mdl')
+	model.load_weights('model_cnn.mdl')
 	result = model_data.predict_generator(yielddatas, steps=1)
 	print(result.shape)
 	# 将数字结果转化为文本结果
@@ -250,7 +256,7 @@ def test(wavpath = 'E:\\Data\\data_thchs30\\train',
 # -----------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
 	# 通过python gru_ctc_am.py [run type]进行测试
-	run_type = sys.argv[1]
+	run_type = 'train'
 	if run_type == 'test':
 		test()
 	elif run_type == 'train':
