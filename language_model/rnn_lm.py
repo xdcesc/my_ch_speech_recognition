@@ -32,7 +32,7 @@ from keras.preprocessing.sequence import pad_sequences
 # 文本转化为数字
 def make_num_lable(textfile_path):
 	lexcion,num2word = gendict(textfile_path)
-	word2num = lambda word:lexcion.get(word, 0)
+	word2num = lambda word:lexcion.get(word, None)
 	textfile = open(textfile_path, 'r+', encoding='utf-8')
 	content_dict = {}
 	for content in textfile.readlines():
@@ -41,7 +41,7 @@ def make_num_lable(textfile_path):
 		content = content.split(' ',1)[1]
 		content = content.split(' ')
 		content = list(map(word2num,content))
-		add_num = list(np.zeros(50-len(content)))
+		#add_num = list(np.zeros(50-len(content)))
 		content = content + add_num
 		content_dict[cont_id] = content
 
@@ -54,10 +54,10 @@ def make_num_lable(textfile_path):
 '''
 # -----------------------------------------------------------------------------------------------------
 # 利用训练数据生成词典
-def gendict(textfile_path):
+def gendict(textfile_path, encoding):
 	dicts = []
-	textfile = open(textfile_path, 'r+', encoding='utf-8')
-	for content in textfile.readlines():
+	textfile = open(textfile_path, 'r+', encoding=encoding)
+	for content in textfile:
 		content = content.strip('\n')
 		content = content.split(' ',1)[1]
 		content = content.split(' ')
@@ -70,10 +70,10 @@ def gendict(textfile_path):
 	return word2num, num2word
 
 # 文本转化为数字,生成文本到数字的字典，数字到文本的字典
-def text2num(textfile_path):
-	lexcion,num2word = gendict(textfile_path)
+def text2num(textfile_path, encoding=''):
+	lexcion,num2word = gendict(textfile_path, encoding)
 	word2num = lambda word:lexcion.get(word, None)
-	textfile = open(textfile_path, 'r+', encoding='utf-8')
+	textfile = open(textfile_path, 'r+', encoding=encoding)
 	content_dict = {}
 	for content in textfile.readlines():
 		content = content.strip('\n')
@@ -96,15 +96,7 @@ def text2num(textfile_path):
 '''
 # -----------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
-	make_text()
-	input_dict, input2num, num2input = text2num('gen_data\\lm_input.txt')
-	lable_dict, lable2num, num2lable = text2num('gen_data\\lm_lable.txt')
-	for x in input_dict:
-		str2 = ''
-		str1 = ''
-		for y in input_dict[x]:
-			str1 = str1 + num2input[y] + ' '
-		for z in lable_dict[x]:
-			str2 = str2 + num2lable[z] + ' '
-		print(str1)
-		print(str2)
+	input_dict, input2num, num2input = text2num('input.txt',encoding='gbk')
+	lable_dict, lable2num, num2lable = text2num('lable.txt', encoding='utf-8')
+	print(lable_dict['A11_103'])
+	print(input_dict['A11_103'])
