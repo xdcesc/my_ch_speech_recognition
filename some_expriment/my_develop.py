@@ -18,6 +18,7 @@ def dict_test():
 	all_word += [word for word in label]
 	counter = Counter(all_word)
 	words = sorted(counter)
+	words = ['_'] + words
 	words_size = len(words)
 	word_num_map = dict(zip(words, range(words_size)))
 	to_num = lambda word: word_num_map.get(word, 4)
@@ -98,10 +99,4 @@ def make_pinyin(textlabel):
 
 
 if __name__ == '__main__':
-
-	parser = argparse.ArgumentParser(description='manual to this script')
-	parser.add_argument('--gpus', type=str, default = None)
-	parser.add_argument('--batch-size', type=int, default=32)
-	args = parser.parse_args()
-	gpus = args.gpus
-	print(gpus)
+	dict_test()
