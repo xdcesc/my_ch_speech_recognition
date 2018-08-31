@@ -14,7 +14,8 @@ from __future__ import print_function
 import codecs
 import os
 import regex# pip install regex
-from xpinyin import Pinyin # pip install xpinyin 
+#from xpinyin import Pinyin # pip install xpinyin 
+from pypinyin import pinyin, lazy_pinyin, Style
 
 def align(sent):
     '''
@@ -24,18 +25,18 @@ def align(sent):
     Returns:
       A tuple of pinyin and chinese sentence.
     '''
-    pinyin = Pinyin()
+
     # 求出汉字拼音，并且放到list中去
-    pnyns = pinyin.get_pinyin(sent, " ").split()
     # 在漢字中添加_
     hanzis = []
-    for char, p in zip(sent.replace(" ", ""), pnyns):
-        hanzis.extend([char] + ["_"] * (len(p) - 1))
-        
-    pnyns = "".join(pnyns)
+    pnyn = pinyin(sent,style=Style.TONE3)
+    hanzis = sent
+    pnyns = ''
+    for i in pnyn:
+        i = "".join(i)
+        pnyns = pnyns + i
     hanzis = "".join(hanzis)
-    
-    assert len(pnyns) == len(hanzis), "The hanzis and the pinyins must be the same in length."
+    #assert len(pnyns) == len(hanzis), "The hanzis and the pinyins must be the same in length."
     return pnyns, hanzis
 
 def clean(text):

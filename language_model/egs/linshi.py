@@ -36,8 +36,25 @@ def clean(text):
     text = regex.sub(u"[^ \p{Han}。，！？]", "", text)
     return text
 
+def load_data():
+    for line in codecs.open('data/zh.tsv', 'r', 'utf-8'):
+        try:
+            _, pnyn_sent, hanzi_sent = line.strip().split("\t")
+        except ValueError:
+            continue
+        pnyn_sents = re.sub(u"(?<=([。，！？]))", r"|", pnyn_sent).split("|")
+        hanzi_sents = re.sub(u"(?<=([。，！？]))", r"|", hanzi_sent).split("|")
+        #print(pnyn_sent)
+
+        for pnyn_sent, hanzi_sent in zip(pnyn_sents, hanzi_sents):
+            #assert len(pnyn_sent)==len(hanzi_sent)
+            # string
+            print(pnyn_sent)
+            print(hanzi_sent)
+
+
 if __name__ == '__main__':
-	cout = []
-	cout.append('1112315456')
-	cout.append('42535')
-	print(cout)
+    pnyn2idx = {'hello':1, 'chifan':2}
+    pnyn_sent = ['hello','chifan','chifan','hello']
+    x = [pnyn2idx.get(pnyn, 1) for pnyn in pnyn_sent]
+    print(x)

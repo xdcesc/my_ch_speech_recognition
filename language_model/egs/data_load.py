@@ -17,17 +17,7 @@ import re
 
 def load_vocab():
     import pickle
-    if hp.isqwerty:
-        return pickle.load(open('data/vocab.qwerty.pkl', 'rb'))
-    else:
-        return pickle.load(open('data/vocab.nine.pkl', 'rb'))
-
-def load_vocab_json():
-    import json
-    if hp.isqwerty:
-        return json.load(open('data/vocab.qwerty.json', 'r'))
-    else:
-        return json.load(open('data/vocab.nine.json', 'r'))
+    return pickle.load(open('data/vocab.pkl', 'rb'))
 
 
 def load_train_data():
@@ -41,6 +31,7 @@ def load_train_data():
     with codecs.open('t', 'w', 'utf-8') as fout:
         for line in codecs.open('data/zh.tsv', 'r', 'utf-8'):
             try:
+                #这里生成的数据pnyn_sent, hanzi_sent是string格式的数据
                 _, pnyn_sent, hanzi_sent = line.strip().split("\t")
             except ValueError:
                 continue
@@ -49,8 +40,10 @@ def load_train_data():
             hanzi_sents = re.sub(u"(?<=([。，！？]))", r"|", hanzi_sent).split("|")
             fout.write(pnyn_sent + "===" + "|".join(pnyn_sents) + "\n")
 
-            for pnyn_sent, hanzi_sent in zip(pnyn_sents+[pnyn_sent], hanzi_sents+[hanzi_sent]):
-                assert len(pnyn_sent)==len(hanzi_sent)
+            for pnyn_sent, hanzi_sent in zip(pnyn_sents, hanzi_sents):
+                #assert len(pnyn_sent)==len(hanzi_sent)
+                pnyn_sent = pnyn_sent.split(' ')
+                hanzi_sent = hanzi_sent.split(' ')
                 if hp.minlen < len(pnyn_sent) <= hp.maxlen:
                     # 通过字典将拼音映射为数字，如果字典中没有拼音的值，则返回1,1就是定义的Unkown，out of vocabulary
                     x = [pnyn2idx.get(pnyn, 1) for pnyn in pnyn_sent] # 1: OOV
