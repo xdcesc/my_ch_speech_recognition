@@ -1,0 +1,3 @@
+model_checkpoint_path: "model_epoch_01_gs_1244"
+all_model_checkpoint_paths: "model_epoch_01_gs_622"
+all_model_checkpoint_paths: "model_epoch_01_gs_1244"

@@ -78,7 +78,8 @@ def load_test_data():
 
 def load_test_string(pnyn2idx, test_string):
     '''Embeds and vectorize words in user input string'''
-    pnyn_sent= test_string
+    pnyn_sent = test_string
+    pnyn_sent = pnyn_sent.split(' ')
     xs = []
     x = [pnyn2idx.get(pnyn, 1) for pnyn in pnyn_sent]
     x += [0] * (hp.maxlen - len(x))
