@@ -1,17 +1,21 @@
-# CTC中文语音识别
+# 深度学习中文语音识别系统
 
 [![GPL-3.0 Licensed](https://img.shields.io/badge/License-GPL3.0-blue.svg?style=flat)](https://opensource.org/licenses/GPL-3.0) [![TensorFlow Version](https://img.shields.io/badge/Tensorflow-1.4+-blue.svg)](https://www.tensorflow.org/) [![Keras Version](https://img.shields.io/badge/Keras-2.0+-blue.svg)](https://keras.io/) [![Python Version](https://img.shields.io/badge/Python-3.x-blue.svg)](https://www.python.org/) 
-### 基于keras的中文语音识别
-- 该项目实现了GRU-CTC中文语音识别，所有代码都在`gru_ctc_am.py`中，包括：
+
+### 基于python的中文语音识别系统
+- 该项目实现了GRU-CTC中文语音识别声音模型，所有代码都在`gru_ctc_am.py`中，包括：
    - 音频文件特征提取
    - 文本数据处理
    - 数据格式处理
    - 构建模型
    - 模型训练及解码
-- 新增加了CNN-CTC结构的中文语音识别模型`cnn_ctc_am.py`，与GRU相比，对网络结构进行了稍加改造。
-- 之外还包括将aishell数据处理为thchs30数据格式，合并数据进行训练。代码及数据放在`gen_aishell_data`中。
+- 新增加了基于科大讯飞DFCNN的CNN-CTC结构的中文语音识别模型`cnn_ctc_am.py`，与GRU相比，对网络结构进行了稍加改造。
+
+- 新增基于CBHG结构的语言模型`language_model\CBHG_lm.py`，该模型之前用于谷歌声音合成，移植到该项目中作为基于神经网络的语言模型。
+
 
 默认数据集为thchs30，参考gen_aishell_data中的数据及代码，也可以使用aishell的数据进行训练。
+   - 增加将aishell数据处理为thchs30数据格式，合并数据进行训练。代码及数据放在`gen_aishell_data`中。
 
 #### 音频文件特征提取
 ```python
