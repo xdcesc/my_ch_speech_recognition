@@ -220,10 +220,10 @@ def train(wavpath = 'E:\\Data\\data_thchs30\\train',
 	yielddatas = data_generate(wavpath, textfile, bath_size)
 	# 导入模型结构，训练模型，保存模型参数
 	model, model_data = creatModel()
-	if os.path.exists('model.mdl'):
-		model.load_weights('model.mdl')
+	if os.path.exists('speech_model\\model_gru.mdl'):
+		model.load_weights('speech_model\\model_gru.mdl')
 	model.fit_generator(yielddatas, steps_per_epoch=steps_per_epoch, epochs=1)
-	model.save_weights('model.mdl')
+	model.save_weights('speech_model\\model_gru.mdl')
 
 
 # -----------------------------------------------------------------------------------------------------
@@ -240,7 +240,7 @@ def test(wavpath = 'E:\\Data\\data_thchs30\\train',
 	yielddatas = data_generate(wavpath, textfile, bath_size)
 	# 载入训练好的模型，并进行识别
 	model, model_data = creatModel()
-	model.load_weights('model.mdl')
+	model.load_weights('speech_model\\model_gru.mdl')
 	result = model_data.predict_generator(yielddatas, steps=1)
 	print(result.shape)
 	# 将数字结果转化为文本结果
