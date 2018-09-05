@@ -10,6 +10,7 @@ import random
 import sys
 import numpy as np
 import scipy.io.wavfile as wav
+import tensorflow as tf
 from collections import Counter
 from python_speech_features import mfcc
 from keras.models import Model
@@ -20,7 +21,18 @@ from keras import backend as K
 from keras.optimizers import SGD, Adadelta
 from keras.layers.recurrent import GRU
 from keras.preprocessing.sequence import pad_sequences
+from keras.utils import multi_gpu_model
 
+
+
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1"
+#进行配置，使用95%的GPU
+config = tf.ConfigProto(allow_soft_placement=True)
+#config = tf.ConfigProto()
+config.gpu_options.per_process_gpu_memory_fraction = 0.95
+#config.gpu_options.allow_growth=True   #不全部占满显存, 按需分配
+set_session(tf.Session(config=config))
 
 # -----------------------------------------------------------------------------------------------------
 '''
@@ -187,7 +199,7 @@ def creatModel():
 	model = Model(inputs=[input_data, labels, input_length, label_length], outputs=loss_out)
 	model.summary()
 	ada_d = Adadelta(lr=0.01, rho=0.95, epsilon=1e-06)
-	#model=multi_gpu_model(model,gpus=2)
+	model=multi_gpu_model(model,gpus=2)
 	model.compile(loss={'ctc': lambda y_true, output: output}, optimizer=ada_d)
 	#test_func = K.function([input_data], [output])
 	print("model compiled successful!")
