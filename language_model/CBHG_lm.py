@@ -293,6 +293,7 @@ def train():
         sv = tf.train.Supervisor(logdir=hp.logdir,
                                  save_model_secs=0)
         with sv.managed_session() as sess:
+            sv.saver.restore(sess, tf.train.latest_checkpoint(hp.logdir))
             for epoch in range(1, hp.num_epochs + 1):
                 if sv.should_stop(): break
                 for step in tqdm(range(g.num_batch), total=g.num_batch, ncols=70, leave=False, unit='b'):

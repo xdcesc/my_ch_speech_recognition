@@ -204,12 +204,12 @@ def creatModel():
 	layer_h7 = BatchNormalization(axis=-1)(layer_h7)
 	layer_h7 = MaxPooling2D(pool_size=(2,2), strides=None, padding="valid")(layer_h7)
 	# 100,25,128
-	layer_h8 = Conv2D(128, (3,3), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(layer_h7)
+	layer_h8 = Conv2D(128, (1,1), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(layer_h7)
 	layer_h8 = BatchNormalization(axis=-1)(layer_h8)
 	layer_h9 = Conv2D(128, (3,3), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(layer_h8)
 	layer_h9 = BatchNormalization(axis=-1)(layer_h9)
 	# 100,25,128
-	layer_h10 = Conv2D(128, (3,3), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(layer_h9)
+	layer_h10 = Conv2D(128, (1,1), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(layer_h9)
 	layer_h10 = BatchNormalization(axis=-1)(layer_h10)
 	layer_h11 = Conv2D(128, (3,3), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(layer_h10)
 	layer_h11 = BatchNormalization(axis=-1)(layer_h11)
@@ -313,4 +313,7 @@ if __name__ == '__main__':
 	if run_type == 'test':
 		test()
 	elif run_type == 'train':
-		train()
+		for x in range(10):
+			train()
+			print('there is ', x, 'epochs')
+			test()
