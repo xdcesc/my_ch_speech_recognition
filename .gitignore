@@ -4,3 +4,14 @@
 *.pyc
 *.mdl
 *.mdl
+some_expriment/linshi.py
+language_model/data/vocab.pkl
+language_model/data/zh.tsv
+language_model/log/model/events.out.tfevents.1535712527.DESKTOP-KLLCF4R
+language_model/log/model/graph.pbtxt
+some_expriment/linshi.py
+language_model/pinyin_sentence
+language_model/log/model/events.out.tfevents.1535938436.DESKTOP-KLLCF4R
+language_model/data/vocab.pkl
+language_model/data/zh.tsv
+some_expriment/linshi.py
