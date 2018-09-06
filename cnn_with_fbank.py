@@ -2,7 +2,8 @@
 '''
 &usage:		CNN-CTC的中文语音识别模型
 @author:	hongwen sun
-#net_str:	cnn32 -> cnn64 -> cnn128 -> dense -> softmax -> ctc_cost
+#feat_in:	fbank[800,200]
+#net_str:	cnn32*2 -> cnn64*2 -> cnn128*6 -> dense*2 -> softmax -> ctc_cost
 '''
 # -----------------------------------------------------------------------------------------------------
 import os
@@ -203,13 +204,22 @@ def creatModel():
 	layer_h7 = BatchNormalization(axis=-1)(layer_h7)
 	layer_h7 = MaxPooling2D(pool_size=(2,2), strides=None, padding="valid")(layer_h7)
 	# 100,25,128
+	layer_h8 = Conv2D(128, (3,3), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(layer_h7)
+	layer_h8 = BatchNormalization(axis=-1)(layer_h8)
+	layer_h9 = Conv2D(128, (3,3), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(layer_h8)
+	layer_h9 = BatchNormalization(axis=-1)(layer_h9)
+	# 100,25,128
+	layer_h10 = Conv2D(128, (3,3), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(layer_h9)
+	layer_h10 = BatchNormalization(axis=-1)(layer_h10)
+	layer_h11 = Conv2D(128, (3,3), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal')(layer_h10)
+	layer_h11 = BatchNormalization(axis=-1)(layer_h11)
 	# Reshape层
-	layer_h8 = Reshape((100, 3200))(layer_h7) 
+	layer_h12 = Reshape((100, 3200))(layer_h11) 
 	# 全连接层
-	layer_h9 = Dense(256, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h8)
-	layer_h9 = BatchNormalization(axis=1)(layer_h9)
-	layer_h10 = Dense(1177, use_bias=True, kernel_initializer='he_normal')(layer_h9)
-	output = Activation('softmax', name='Activation0')(layer_h10)
+	layer_h13 = Dense(256, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h12)
+	layer_h13 = BatchNormalization(axis=1)(layer_h13)
+	layer_h14 = Dense(1177, use_bias=True, kernel_initializer='he_normal')(layer_h13)
+	output = Activation('softmax', name='Activation0')(layer_h14)
 	model_data = Model(inputs=input_data, outputs=output)
 	# ctc层
 	labels = Input(name='the_labels', shape=[50], dtype='float32')
