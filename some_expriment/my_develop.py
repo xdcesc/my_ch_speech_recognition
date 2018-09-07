@@ -97,6 +97,20 @@ def make_pinyin(textlabel):
 	x = pinyin(textlabel,style=Style.TONE3)
 	return x
 
+def get_wav_lst(wavpath):
+	txtobj = open(wavpath, 'r+')
+	txtread = txtobj.read()
+	txtline = txtread.split('\n')
+	dictlist = {}
+	list_mark = []
+	for x in txtline:
+		if x != '':
+			txtl = x.split(' ')
+			print(txtl)
+			dictlist[txtl[0]] = txtl[1]
+
 
 if __name__ == '__main__':
-	dict_test()
+	textlabel = ['吃饭', '和', '人']
+	x = pinyin(textlabel,style=Style.TONE3)
+	print(x)
