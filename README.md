@@ -14,6 +14,7 @@
    - 新增基于CBHG结构的语言模型`language_model\CBHG_lm.py`，该模型之前用于谷歌声音合成，移植到该项目中作为基于神经网络的语言模型。
 
 - 数据集
+
 |Name | train | dev | test 
 |- | :-: | -: | -:
 |aishell | 120098| 14326 | 7176
