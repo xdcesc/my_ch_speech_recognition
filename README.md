@@ -14,16 +14,15 @@
    - 新增基于CBHG结构的语言模型`language_model\CBHG_lm.py`，该模型之前用于谷歌声音合成，移植到该项目中作为基于神经网络的语言模型。
 
 - 数据集
-
-|Name | train | dev | test 
-|- | :-: | -: | -:
-|aishell | 120098| 14326 | 7176
-|primewords | 40783 | 5046 | 5073
-|thchs-30 | 10000 | 893 | 2495
-|st-cmd | 10000 | 600 | 2000
-
    - 增加stc、primewords、Aishell、thchs30四个数据集，整理为相同格式，放于`some_expriment\data_process\datalist`中。
    - 共计约430小时,相关链接：[http://www.openslr.org/resources.php](http://www.openslr.org/resources.php)
+
+      |Name | train | dev | test 
+      |- | :-: | -: | -:
+      |aishell | 120098| 14326 | 7176
+      |primewords | 40783 | 5046 | 5073
+      |thchs-30 | 10000 | 893 | 2495
+      |st-cmd | 10000 | 600 | 2000
 
 - 实验结果
    - 其中声学模型得到带有声调的拼音，如:
