@@ -8,13 +8,15 @@
 - 声学模型
    - 该项目实现了GRU-CTC中文语音识别声音模型，所有代码都在`gru_ctc_am.py`中，包括：
    - 增加了基于科大讯飞DFCNN的CNN-CTC结构的中文语音识别模型`cnn_ctc_am.py`，与GRU相比，对网络结构进行了稍加改造。
+   - 完全使用DFCNN框架搭建声学模型，稍加改动，将部分卷积层改为inception，使用时频图作为输入，`cnn_with_fbank.py`。
    
 - 语言模型
    - 新增基于CBHG结构的语言模型`language_model\CBHG_lm.py`，该模型之前用于谷歌声音合成，移植到该项目中作为基于神经网络的语言模型。
 
 - 数据集
-   - 默认数据集为thchs30，参考gen_aishell_data中的数据及代码，也可以使用aishell的数据进行训练。
-   - 增加将aishell数据处理为thchs30数据格式，合并数据进行训练。代码及数据放在`gen_aishell_data`中。
+   - 增加stc、primewords、Aishell、thchs30四个数据集，整理为相同格式，放于`some_expriment\data_process\datalist`中。
+   - 共计约430小时
+
 - 实验结果
    - 其中声学模型得到带有声调的拼音，如:
    ```python
