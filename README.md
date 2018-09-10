@@ -14,7 +14,7 @@
    - 新增基于CBHG结构的语言模型`language_model\CBHG_lm.py`，该模型之前用于谷歌声音合成，移植到该项目中作为基于神经网络的语言模型。
 
 - 数据集
-   - 增加stc、primewords、Aishell、thchs30四个数据集，整理为相同格式，放于`some_expriment\data_process\datalist`中。
+   - 增加stc、primewords、Aishell、thchs30四个数据集，整理为相同格式，放于`acoustic_model\data`中,调用四个数据集的脚本在`acoustic_model\extra_utils`中，将四个数据集下载后放到data目录下直接运行`acoustic_model\cnn_with_full.py`就可以使用所有数据进行训练了。
    - 共计约430小时,相关链接：[http://www.openslr.org/resources.php](http://www.openslr.org/resources.php)
 
       |Name | train | dev | test 
