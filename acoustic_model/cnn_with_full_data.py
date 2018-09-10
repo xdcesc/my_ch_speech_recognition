@@ -75,7 +75,7 @@ def creatModel():
 	# 全连接层
 	layer_h13 = Dense(256, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h12)
 	layer_h13 = BatchNormalization(axis=1)(layer_h13)
-	layer_h14 = Dense(1449, use_bias=True, kernel_initializer='he_normal')(layer_h13)
+	layer_h14 = Dense(1450, use_bias=True, kernel_initializer='he_normal')(layer_h13)
 	output = Activation('softmax', name='Activation0')(layer_h14)
 	model_data = Model(inputs=input_data, outputs=output)
 	# ctc层
