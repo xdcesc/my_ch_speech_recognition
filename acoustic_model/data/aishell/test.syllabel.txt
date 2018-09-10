@@ -1751,7 +1751,7 @@ BAC009S0768W0454 shen4 zhi4 hai2 hui4 pa2 dao4 cun1 min2 jia1 zhong1
 BAC009S0768W0455 ta1 men5 huai2 yi2 shi4 you3 ren2 zai4 cun1 li3 yang3 she2 suo3 zhi4
 BAC009S0768W0456 she2 zhu3 liu2 xian1 sheng1 biao3 shi4 yi3 hou4 jiang1 bu4 zai4 jia1 li3 yang3 she2
 BAC009S0768W0457 cun1 yi1 yan2 fa1 shen2 qi2 zhi3 tong4 yao4 wang3 xiao1 quan2 quan2 guo2 huo4 xing2 san1 nian2
-BAC009S0768W0458 cun1 wei4 sheng1 shi4 yi1 shi1 jian1 zhi2 hei1 ｂ5 chao1 ji4 zhe3 an4 fang3 jie2 shu4 bei4 gen1 zong1
+BAC009S0768W0458 cun1 wei4 sheng1 shi4 yi1 shi1 jian1 zhi2 hei1 bi5 chao1 ji4 zhe3 an4 fang3 jie2 shu4 bei4 gen1 zong1
 BAC009S0768W0459 ming2 zhe5 shi4 da4 xing1 qu1 huang2 cun1 zhen4 lang2 fa2 san1 cun1 de5 yi1 shi1
 BAC009S0768W0460 an4 di4 li3 que4 fa1 bu4 xiao3 guang3 gao4 lan3 ke4
 BAC009S0768W0461 cun1 fu4 wei4 huan3 jie3 zhang4 fu1 bing4 tong4 zhong3 ying1 li4 dang1 yao4 yong4 bei4 pan4 xing2 liu4 ge4 yue4
