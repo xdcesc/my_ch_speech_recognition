@@ -75,7 +75,7 @@ def creatModel():
 	# 全连接层
 	layer_h13 = Dense(256, activation="relu", use_bias=True, kernel_initializer='he_normal')(layer_h12)
 	layer_h13 = BatchNormalization(axis=1)(layer_h13)
-	layer_h14 = Dense(1177, use_bias=True, kernel_initializer='he_normal')(layer_h13)
+	layer_h14 = Dense(1449, use_bias=True, kernel_initializer='he_normal')(layer_h13)
 	output = Activation('softmax', name='Activation0')(layer_h14)
 	model_data = Model(inputs=input_data, outputs=output)
 	# ctc层
@@ -124,8 +124,8 @@ def train(datapath = 'data/',
 		steps_per_epoch = 1000, 
 		epochs = 1):
 	# 准备训练所需数据
-	p = get_data(datapath = datapath, readtype = 'train', batch_size = batch_size)
-	yielddatas = p.data_generate()
+	p = get_data(datapath = datapath, read_type = 'train', batch_size = batch_size)
+	yielddatas = p.data_generator()
 	# 导入模型结构，训练模型，保存模型参数
 	model, model_data = creatModel()
 	if os.path.exists('speech_model/model_cnn_fbank.mdl'):
@@ -140,12 +140,12 @@ def train(datapath = 'data/',
 '''
 # -----------------------------------------------------------------------------------------------------
 # 测试模型
-def test(datapath = 'data/'
-		bath_size = 1):
+def test(datapath = 'data/',
+		batch_size = 1):
 	# 准备测试数据，以及生成字典
-	p = get_data(datapath = datapath, readtype = 'test', batch_size = batch_size)
+	p = get_data(datapath = datapath, read_type = 'test', batch_size = batch_size)
 	num2word = p.label_dict
-	yielddatas = p.data_generate()
+	yielddatas = p.data_generator()
 	# 载入训练好的模型，并进行识别
 	model, model_data = creatModel()
 	model.load_weights('speech_model/model_cnn_fbank.mdl')

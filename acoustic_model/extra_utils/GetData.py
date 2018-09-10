@@ -10,22 +10,22 @@ import sys
 import numpy as np
 import scipy.io.wavfile as wav
 from keras.preprocessing.sequence import pad_sequences
-from feature_extract import compute_fbank
+from extra_utils.feature_extract import compute_fbank
 
 
 class get_data():
 	"""获取四个数据集音频数据和标注数据"""
-	def __init__(self, datapath = 'E:\\GitHub\\my_ch_speech_recognition\\acoustic_model\\data\\', read_type = 'train', batch_size = 4):
+	def __init__(self, datapath = 'data/', read_type = 'train', batch_size = 4):
 		super(get_data, self).__init__()
 		self.datapath = datapath
-		self.wavpath_total = 'E:\\Data\\'
+		self.wavpath_total = 'data/'
 		self.read_type = read_type
 		self.batch_size = batch_size
 		# 四个数据集文件放置位置 [data/thchs30]
-		self.thchs30_dir = datapath + 'thchs30\\'
-		self.aishell_dir = datapath + 'aishell\\'
-		self.primewords_dir = datapath +'primewords\\'
-		self.stcmds_dir = datapath + 'st-cmds\\'
+		self.thchs30_dir = datapath + 'thchs30/'
+		self.aishell_dir = datapath + 'aishell/'
+		self.primewords_dir = datapath +'primewords/'
+		self.stcmds_dir = datapath + 'st-cmds/'
 		# 定义标注拼音映射为数字的字典 ['a1', 'a2', ...]
 		self.label_dict = self.gen_label_dict()
 		self.dict_len = len(self.label_dict)
@@ -83,13 +83,11 @@ class get_data():
 			wavfiles_dict[wav_id] = self.wavpath_total + wav_path
 		return wavfiles_dict
 
-
 	# 获取四个数据集的总量
 	def get_data_num(self):
 		total_data_num = len(self.thchs30_wav_paths) + len(self.aishell_wav_paths) \
 						+ len(self.primewords_wav_paths) + len(self.stcmds_wav_paths)
 		return total_data_num
-
 
 	# 用于训练或者测试的数据生成器
 	def data_generator(self):
@@ -147,3 +145,8 @@ class get_data():
 	    outputs = {'ctc': np.zeros([x.shape[0]])}  # dummy data for dummy loss function
 	    return (inputs, outputs)
 
+
+
+
+p = get_data()
+print(p.dict_len)
