@@ -43,9 +43,7 @@
    ```
 
 
-
-该模型作为一个练手小项目。
-增加语言模型，效果不错。
+直接运行训练就可以达到90%的识别率。
 
 [我的github: https://github.com/audier](https://github.com/audier)
 
