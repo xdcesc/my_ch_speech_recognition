@@ -86,8 +86,13 @@ def creatModel():
 
 	model = Model(inputs=[input_data, labels, input_length, label_length], outputs=loss_out)
 	model.summary()
+	# clipnorm seems to speeds up convergence
+	#sgd = SGD(lr=0.001, decay=1e-6, momentum=0.9, nesterov=True, clipnorm=5)
+	#ada_d = Adadelta(lr = 0.01, rho = 0.95, epsilon = 1e-06)
+	#rms = RMSprop(lr=0.01,rho=0.9,epsilon=1e-06)		
+	#opt = Adam(lr = 0.01, beta_1 = 0.9, beta_2 = 0.999, decay = 0.0, epsilon = 10e-8)
 	ada_d = Adadelta(lr=0.01, rho=0.95, epsilon=1e-06)
-	#model=multi_gpu_model(model,gpus=2)
+	model=multi_gpu_model(model,gpus=2)
 	model.compile(loss={'ctc': lambda y_true, output: output}, optimizer=ada_d)
 	#test_func = K.function([input_data], [output])
 	print("model compiled successful!")
